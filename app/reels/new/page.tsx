@@ -16,14 +16,6 @@ import { NewReelForm } from "@/components/new-reel-form";
 const VIDEO_EXTENSIONS = new Set(["mp4", "mov", "webm"]);
 const PHOTO_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
 
-type CreateInput = {
-  paths: string[];
-  caption: string;
-  musicTrackId: number | null;
-  musicStart: number;
-  musicLength: number;
-};
-
 async function searchMusic(query: string): Promise<Track[]> {
   "use server";
 
@@ -36,9 +28,15 @@ async function searchMusic(query: string): Promise<Track[]> {
   return searchTracks(String(query ?? ""));
 }
 
-async function createPost(
-  input: CreateInput
-): Promise<{ ok: boolean; error?: string }> {
+async function createReel(input: {
+  kind: string;
+  path: string;
+  caption: string;
+  durationSeconds: number | null;
+  musicTrackId: number | null;
+  musicStart: number;
+  musicLength: number;
+}): Promise<{ ok: boolean; error?: string }> {
   "use server";
 
   const supabase = await createClient();
@@ -49,35 +47,24 @@ async function createPost(
 
   if (!user) return { ok: false, error: "Please sign in again." };
 
-  const paths = Array.isArray(input.paths) ? input.paths : [];
-
-  if (paths.length < 1 || paths.length > 10 || new Set(paths).size !== paths.length) {
-    return { ok: false, error: "Add between 1 and 10 photos or videos." };
+  if (!input.path || !isOwnReelPath(input.path, user.id)) {
+    return { ok: false, error: "Upload isn't valid." };
   }
 
-  // Every file must be one this user just uploaded, so nobody can attach other media
-  const media: { kind: "photo" | "video"; url: string }[] = [];
+  const ext = input.path.split(".").pop()?.toLowerCase() ?? "";
+  const kind = VIDEO_EXTENSIONS.has(ext)
+    ? "video"
+    : PHOTO_EXTENSIONS.has(ext)
+      ? "photo"
+      : null;
 
-  for (const path of paths) {
-    if (!isOwnReelPath(path, user.id)) {
-      return { ok: false, error: "One of the uploads isn't valid." };
-    }
+  if (!kind) return { ok: false, error: "That file type isn't supported." };
 
-    const ext = path.split(".").pop()?.toLowerCase() ?? "";
-    const kind = VIDEO_EXTENSIONS.has(ext)
-      ? "video"
-      : PHOTO_EXTENSIONS.has(ext)
-        ? "photo"
-        : null;
+  const mediaUrl = supabase.storage
+    .from("photos")
+    .getPublicUrl(input.path).data.publicUrl;
 
-    if (!kind) return { ok: false, error: "That file type isn't supported." };
-
-    media.push({
-      kind,
-      url: supabase.storage.from("photos").getPublicUrl(path).data.publicUrl,
-    });
-  }
-
+  // Rate limit: max 10 reels per hour
   const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
   const { count } = await supabase
     .from("reels")
@@ -91,8 +78,6 @@ async function createPost(
 
   const caption = String(input.caption ?? "").trim().slice(0, CAPTION_MAX);
 
-  // Music is optional. The song is looked up again here, so its title and
-  // preview link always come from Apple, never from the browser.
   let music: {
     music_track_id: number;
     music_title: string;
@@ -134,29 +119,16 @@ async function createPost(
     .from("reels")
     .insert({
       user_id: user.id,
-      kind: media[0].kind,
-      media_url: media[0].url,
+      kind,
+      media_url: mediaUrl,
       caption: caption || null,
+      duration_seconds: input.durationSeconds,
       ...(music ?? {}),
     })
     .select("id")
     .single();
 
   if (error || !post) {
-    return { ok: false, error: "Could not save your post. Please try again." };
-  }
-
-  const { error: mediaError } = await supabase.from("post_media").insert(
-    media.map((m, i) => ({
-      post_id: post.id,
-      sort_order: i,
-      kind: m.kind,
-      url: m.url,
-    }))
-  );
-
-  if (mediaError) {
-    await supabase.from("reels").delete().eq("id", post.id).eq("user_id", user.id);
     return { ok: false, error: "Could not save your post. Please try again." };
   }
 
@@ -178,17 +150,20 @@ async function NewPostContent() {
 
   return (
     <div className="mx-auto mt-6 max-w-md p-6">
-      <Link href="/" className="text-sm text-foreground/60 hover:text-foreground">
+      <Link
+        href="/"
+        className="text-sm text-foreground/60 hover:text-foreground"
+      >
         ← Back to feed
       </Link>
 
       <h1 className="mb-6 mt-4 text-3xl font-bold">New post</h1>
 
       <NewReelForm
-  userId={user.id}
-  searchMusic={searchMusic}
-  createReel={createPost}
-/>
+        userId={user.id}
+        searchMusic={searchMusic}
+        createReel={createReel}
+      />
     </div>
   );
 }
