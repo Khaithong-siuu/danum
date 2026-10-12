@@ -29,6 +29,7 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --brand: 217 91% 60%;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -56,13 +57,74 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
+
+  /* Accent colors. Keep these AFTER :root and .dark so they win. */
+  [data-accent="blue"] {
+    --brand: 217 91% 60%;
+  }
+  [data-accent="rose"] {
+    --brand: 346 77% 50%;
+  }
+  [data-accent="green"] {
+    --brand: 142 71% 40%;
+  }
+  [data-accent="orange"] {
+    --brand: 25 95% 53%;
+  }
+  [data-accent="purple"] {
+    --brand: 262 83% 58%;
+  }
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
     @apply bg-background text-foreground;
+    /* San Francisco and Apple Color Emoji on iPhone, iPad and Mac */
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+      "SF Pro Display", "Helvetica Neue", "Apple Color Emoji", system-ui,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  /* iPhone Safari zooms into any field smaller than 16px, so keep them at 16px */
+  @media (hover: none) and (pointer: coarse) {
+    input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not(
+        [type="file"]
+      ),
+    textarea,
+    select {
+      font-size: 16px !important;
+    }
+  }
+}
+
+@layer utilities {
+  .text-brand {
+    color: hsl(var(--brand));
+  }
+  .bg-brand {
+    background-color: hsl(var(--brand));
+  }
+  .border-brand {
+    border-color: hsl(var(--brand));
   }
 }
