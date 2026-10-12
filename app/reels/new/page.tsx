@@ -185,10 +185,10 @@ async function NewPostContent() {
       <h1 className="mb-6 mt-4 text-3xl font-bold">New post</h1>
 
       <NewReelForm
-        userId={user.id}
-        searchMusic={searchMusic}
-        createPost={createPost}
-      />
+  userId={user.id}
+  searchMusic={searchMusic}
+  createReel={createPost}
+/>
     </div>
   );
 }
