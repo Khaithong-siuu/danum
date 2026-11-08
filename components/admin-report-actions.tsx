@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { resolveReports } from "@/app/actions/admin";
 
 export function AdminReportActions({
@@ -16,16 +17,10 @@ export function AdminReportActions({
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmRemove, setConfirmRemove] = useState(false);
 
   async function run(action: "remove" | "reviewed" | "dismissed") {
     if (busy) return;
-
-    if (
-      action === "remove" &&
-      !window.confirm(`Permanently remove this ${targetType}? This can't be undone.`)
-    ) {
-      return;
-    }
 
     setBusy(true);
     setError(null);
@@ -50,7 +45,7 @@ export function AdminReportActions({
         {canRemove && (
           <button
             type="button"
-            onClick={() => void run("remove")}
+            onClick={() => setConfirmRemove(true)}
             disabled={busy}
             className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
           >
@@ -75,6 +70,19 @@ export function AdminReportActions({
         </button>
       </div>
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+
+      <ConfirmDialog
+        open={confirmRemove}
+        title={`Remove this ${targetType}?`}
+        message="It will be permanently removed. This can't be undone."
+        confirmLabel="Remove"
+        destructive
+        onCancel={() => setConfirmRemove(false)}
+        onConfirm={() => {
+          setConfirmRemove(false);
+          void run("remove");
+        }}
+      />
     </div>
   );
 }

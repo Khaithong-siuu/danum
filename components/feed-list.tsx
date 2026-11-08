@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Sheet } from "@/components/sheet";
 import { CommentsSheet } from "@/components/comments-sheet";
 import { ReportSheet } from "@/components/report-sheet";
+import { EmojiText } from "@/components/emoji-text";
 import type { AddResult, CommentData } from "@/lib/comments";
 import { formatCount } from "@/lib/reels";
 import { timeAgo } from "@/lib/time";
@@ -45,37 +47,72 @@ export type FeedPost = {
   previewComments: { id: number; username: string; content: string }[];
 };
 
+/* Stroke icons, same set as the reels */
 const ICONS = {
-  heart:
-    "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z",
-  comment: "M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z",
-  bookmark: "M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z",
-  send: "M2.01 21L23 12 2.01 3 2 10l15 2-15 2z",
+  heart: [
+    "M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z",
+  ],
+  comment: ["M7.9 20A9 9 0 1 0 4 16.1L2 22Z"],
+  send: ["m22 2-7 20-4-9-9-4Z", "M22 2 11 13"],
+  bookmark: ["m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"],
+  volumeOn: [
+    "M11 5 6 9H2v6h4l5 4V5Z",
+    "M15.54 8.46a5 5 0 0 1 0 7.07",
+    "M19.07 4.93a10 10 0 0 1 0 14.14",
+  ],
+  volumeOff: ["M11 5 6 9H2v6h4l5 4V5Z", "m22 9-6 6", "m16 9 6 6"],
+  trash: [
+    "M3 6h18",
+    "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6",
+    "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2",
+  ],
+  flag: [
+    "M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z",
+    "M4 22v-7",
+  ],
+  check: ["M20 6 9 17l-5-5"],
+  music: [
+    "M9 18V5l12-2v13",
+    "M6 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
+    "M18 13a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
+  ],
+  plus: ["M12 5v14", "M5 12h14"],
 } as const;
+
+type IconName = keyof typeof ICONS;
 
 function Icon({
   name,
   filled = false,
-  className = "h-7 w-7",
+  className = "h-6 w-6",
+  strokeWidth = 1.9,
 }: {
-  name: keyof typeof ICONS;
+  name: IconName;
   filled?: boolean;
   className?: string;
+  strokeWidth?: number;
 }) {
   return (
     <svg
       viewBox="0 0 24 24"
       className={className}
       fill={filled ? "currentColor" : "none"}
-      stroke={filled ? "none" : "currentColor"}
-      strokeWidth={1.8}
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d={ICONS[name]} />
+      {ICONS[name].map((d, i) => (
+        <path key={i} d={d} />
+      ))}
     </svg>
   );
 }
+
+/* Floating glass over photos and videos */
+const GLASS_DARK =
+  "border border-white/15 bg-black/35 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.25)]";
 
 function Avatar({ url, size }: { url: string | null; size: number }) {
   return url ? (
@@ -126,10 +163,11 @@ function PostCard({
 }) {
   const cardRef = useRef<HTMLElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const popTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [inView, setInView] = useState(false);
   const [slide, setSlide] = useState(0);
   const [videoMuted, setVideoMuted] = useState(true);
-  const [pop, setPop] = useState(false);
+  const [pop, setPop] = useState(0);
 
   // Know when this post is on screen
   useEffect(() => {
@@ -142,6 +180,12 @@ function PostCard({
     );
     observer.observe(el);
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (popTimer.current) clearTimeout(popTimer.current);
+    };
   }, []);
 
   // Stop its song when it scrolls away
@@ -177,8 +221,9 @@ function PostCard({
 
   function handleDoubleTap() {
     if (!post.liked) onLike(post);
-    setPop(true);
-    setTimeout(() => setPop(false), 700);
+    setPop(Date.now());
+    if (popTimer.current) clearTimeout(popTimer.current);
+    popTimer.current = setTimeout(() => setPop(0), 800);
   }
 
   const current = post.media[slide];
@@ -187,17 +232,19 @@ function PostCard({
     <article
       ref={cardRef}
       id={`post-${post.id}`}
-      className="scroll-mt-20 overflow-hidden rounded-2xl border border-foreground/10 bg-background shadow-sm"
+      className="scroll-mt-20 overflow-hidden rounded-[28px] glass-card transition-all duration-300"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-3">
-          <Avatar url={post.author?.avatarUrl ?? null} size={44} />
-          <div className="leading-tight">
+      <div className="flex items-center justify-between px-4 py-3.5">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="rounded-full p-[2px] ring-2 ring-brand/25">
+            <Avatar url={post.author?.avatarUrl ?? null} size={40} />
+          </div>
+          <div className="min-w-0 leading-tight">
             {post.author ? (
               <Link
                 href={`/u/${post.author.username}`}
-                className="font-semibold hover:underline"
+                className="block truncate font-semibold tracking-tight transition-colors hover:text-brand"
               >
                 {post.author.username}
               </Link>
@@ -212,17 +259,19 @@ function PostCard({
           <button
             type="button"
             onClick={() => onDelete(post)}
-            className="text-sm text-red-500"
+            className="flex items-center gap-1 rounded-full bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-500 transition hover:bg-red-500/15 active:scale-95"
           >
+            <Icon name="trash" className="h-3.5 w-3.5" />
             Delete
           </button>
         ) : (
           <button
             type="button"
             onClick={() => onReport(post.id)}
-            className="text-sm text-foreground/50 hover:text-foreground"
+            aria-label="Report post"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/45 transition hover:bg-foreground/[0.06] hover:text-foreground active:scale-90"
           >
-            Report
+            <Icon name="flag" className="h-[18px] w-[18px]" />
           </button>
         )}
       </div>
@@ -264,7 +313,9 @@ function PostCard({
         </div>
 
         {post.media.length > 1 && (
-          <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-black/50 px-2 py-0.5 text-xs text-white">
+          <span
+            className={`${GLASS_DARK} pointer-events-none absolute right-3 top-3 rounded-full px-2.5 py-0.5 text-xs font-medium tabular-nums text-white`}
+          >
             {Math.min(slide + 1, post.media.length)}/{post.media.length}
           </span>
         )}
@@ -274,21 +325,22 @@ function PostCard({
             type="button"
             onClick={() => setVideoMuted((m) => !m)}
             aria-label={videoMuted ? "Turn sound on" : "Turn sound off"}
-            className="absolute bottom-3 right-3 rounded-full bg-black/50 px-2.5 py-1 text-sm text-white"
+            className={`${GLASS_DARK} absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full text-white transition active:scale-90`}
           >
-            {videoMuted ? "🔇" : "🔊"}
+            <Icon name={videoMuted ? "volumeOff" : "volumeOn"} className="h-[18px] w-[18px]" />
           </button>
         )}
 
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span
-            className={`text-red-500 transition-all duration-300 ${
-              pop ? "scale-100 opacity-90" : "scale-50 opacity-0"
-            }`}
-          >
-            <Icon name="heart" filled className="h-24 w-24" />
-          </span>
-        </div>
+        {pop !== 0 && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <Icon
+              key={pop}
+              name="heart"
+              filled
+              className="h-24 w-24 animate-heart-burst text-[#ff3b5c] drop-shadow-[0_8px_30px_rgba(255,59,92,0.55)]"
+            />
+          </div>
+        )}
       </div>
 
       {post.media.length > 1 && (
@@ -296,8 +348,8 @@ function PostCard({
           {post.media.map((m, i) => (
             <span
               key={m.id}
-              className={`h-1.5 w-1.5 rounded-full ${
-                i === slide ? "bg-brand" : "bg-foreground/20"
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === slide ? "w-4 bg-brand" : "w-1.5 bg-foreground/20"
               }`}
             />
           ))}
@@ -305,31 +357,38 @@ function PostCard({
       )}
 
       {/* Actions */}
-      <div className="flex items-center justify-between px-4 pt-3">
+      <div className="flex items-center justify-between px-4 pt-3.5">
         <div className="flex items-center gap-4">
           <button
             type="button"
             onClick={() => onLike(post)}
             aria-label={post.liked ? "Unlike" : "Like"}
-            className={`transition active:scale-125 ${
-              post.liked ? "text-red-500" : ""
+            className={`transition-transform duration-200 active:scale-90 ${
+              post.liked ? "text-[#ff3b5c]" : "text-foreground/80 hover:text-foreground"
             }`}
           >
-            <Icon name="heart" filled={post.liked} />
+            <Icon
+              key={post.liked ? "on" : "off"}
+              name="heart"
+              filled={post.liked}
+              className={`h-[26px] w-[26px] ${post.liked ? "animate-like-pop" : ""}`}
+            />
           </button>
           <button
             type="button"
             onClick={() => onOpenComments(post.id)}
             aria-label="Comments"
+            className="text-foreground/80 transition-transform duration-200 hover:text-foreground active:scale-90"
           >
-            <Icon name="comment" />
+            <Icon name="comment" className="h-[26px] w-[26px]" />
           </button>
           <button
             type="button"
             onClick={() => onOpenShare(post.id)}
             aria-label="Send"
+            className="text-foreground/80 transition-transform duration-200 hover:text-foreground active:scale-90"
           >
-            <Icon name="send" filled />
+            <Icon name="send" className="h-[26px] w-[26px]" />
           </button>
         </div>
 
@@ -337,8 +396,11 @@ function PostCard({
           type="button"
           onClick={() => onSave(post)}
           aria-label={post.saved ? "Remove from saved" : "Save"}
+          className={`transition-transform duration-200 active:scale-90 ${
+            post.saved ? "text-brand" : "text-foreground/80 hover:text-foreground"
+          }`}
         >
-          <Icon name="bookmark" filled={post.saved} />
+          <Icon name="bookmark" filled={post.saved} className="h-[26px] w-[26px]" />
         </button>
       </div>
 
@@ -346,31 +408,31 @@ function PostCard({
         <button
           type="button"
           onClick={() => onOpenLikers(post.id)}
-          className="font-semibold"
+          className="font-semibold tabular-nums"
         >
           {formatCount(post.likeCount)} {post.likeCount === 1 ? "like" : "likes"}
         </button>
-        <span className="text-foreground/60">
+        <span className="text-foreground/50">
           {" "}
           · {formatCount(post.viewCount)} {post.viewCount === 1 ? "view" : "views"}
         </span>
       </div>
 
       {post.caption && (
-        <p className="whitespace-pre-wrap break-words px-4 pt-1 text-sm">
+        <p className="whitespace-pre-wrap break-words px-4 pt-1 text-sm leading-snug">
           <span className="mr-2 font-semibold">
             {post.author?.username ?? "Anonymous"}
           </span>
-          {post.caption}
+          <EmojiText text={post.caption} />
         </p>
       )}
 
       {post.music && (
-        <div className="px-4 pt-2">
+        <div className="px-4 pt-2.5">
           <button
             type="button"
             onClick={() => onToggleMusic(post)}
-            className="inline-flex max-w-full items-center gap-2 rounded-full bg-foreground/10 py-1 pl-1 pr-3 text-xs"
+            className="inline-flex max-w-full items-center gap-2 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] py-1 pl-1 pr-3.5 text-xs font-medium backdrop-blur-md transition-all hover:bg-foreground/[0.08] active:scale-95"
           >
             {post.music.artworkUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -378,15 +440,34 @@ function PostCard({
                 src={post.music.artworkUrl}
                 alt=""
                 referrerPolicy="no-referrer"
-                className="h-6 w-6 shrink-0 rounded-full object-cover"
+                className={`h-7 w-7 shrink-0 rounded-full object-cover ${
+                  musicPlaying ? "animate-vinyl" : ""
+                }`}
               />
             ) : (
-              <span className="pl-2">♪</span>
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground/10">
+                <Icon name="music" className="h-3.5 w-3.5" />
+              </span>
             )}
             <span className="truncate">
               {post.music.title} · {post.music.artist}
             </span>
-            <span aria-hidden="true">{musicPlaying ? "❚❚" : "▶"}</span>
+            {musicPlaying ? (
+              <div className="flex h-3 items-end gap-0.5">
+                <span className="eq-bar w-0.5 rounded-full bg-brand" />
+                <span className="eq-bar w-0.5 rounded-full bg-brand [animation-delay:0.2s]" />
+                <span className="eq-bar w-0.5 rounded-full bg-brand [animation-delay:0.4s]" />
+              </div>
+            ) : (
+              <svg
+                viewBox="0 0 24 24"
+                className="h-3 w-3 shrink-0 text-foreground/50"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" />
+              </svg>
+            )}
           </button>
         </div>
       )}
@@ -397,7 +478,7 @@ function PostCard({
           <button
             type="button"
             onClick={() => onOpenComments(post.id)}
-            className="text-foreground/60"
+            className="text-foreground/55"
           >
             View all {formatCount(post.commentCount)}{" "}
             {post.commentCount === 1 ? "comment" : "comments"}
@@ -407,16 +488,16 @@ function PostCard({
         {post.previewComments.map((c) => (
           <p key={c.id} className="truncate">
             <span className="mr-2 font-semibold">{c.username}</span>
-            {c.content}
+            <EmojiText text={c.content} />
           </p>
         ))}
 
         <button
           type="button"
           onClick={() => onOpenComments(post.id)}
-          className="block text-foreground/50"
+          className="block text-foreground/45"
         >
-          Add a comment...
+          Add a comment…
         </button>
       </div>
     </article>
@@ -467,6 +548,7 @@ export function FeedList({
     postId: number;
   } | null>(null);
   const [reportPostId, setReportPostId] = useState<number | null>(null);
+  const [confirmPost, setConfirmPost] = useState<FeedPost | null>(null);
   const [likers, setLikers] = useState<Person[] | null>(null);
   const [sent, setSent] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
@@ -481,6 +563,7 @@ export function FeedList({
     const audio = audioRef.current;
     return () => {
       audio?.pause();
+      if (toastTimer.current) clearTimeout(toastTimer.current);
     };
   }, []);
 
@@ -601,18 +684,37 @@ export function FeedList({
     else showToast("Couldn't send. Try again.");
   }
 
-  async function remove(p: FeedPost) {
-    if (!window.confirm("Delete this post?")) return;
-    await deletePost(p.id);
-    setItems((prev) => prev.filter((x) => x.id !== p.id));
+  async function confirmRemove() {
+    const p = confirmPost;
+    if (!p) return;
+
+    setConfirmPost(null);
+    try {
+      await deletePost(p.id);
+      setItems((prev) => prev.filter((x) => x.id !== p.id));
+      showToast("Post deleted");
+    } catch {
+      showToast("Couldn't delete. Try again.");
+    }
   }
 
   if (items.length === 0) {
     return (
-      <div className="py-20 text-center text-foreground/60">
-        <p className="mb-4 text-xl">No posts yet</p>
-        <Link href="/reels/new" className="text-brand hover:underline">
-          Create the first post →
+      <div className="flex flex-col items-center gap-4 py-24 text-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand/10 text-brand ring-1 ring-brand/20">
+          <Icon name="plus" className="h-9 w-9" strokeWidth={1.6} />
+        </div>
+        <div>
+          <p className="text-xl font-semibold tracking-tight">No posts yet</p>
+          <p className="mt-1 text-sm text-foreground/55">
+            Share the first moment.
+          </p>
+        </div>
+        <Link
+          href="/reels/new"
+          className="rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand/25 transition active:scale-95"
+        >
+          Create a post
         </Link>
       </div>
     );
@@ -621,7 +723,7 @@ export function FeedList({
   const sheetPostId = sheet?.postId ?? null;
 
   return (
-    <div className="mx-auto max-w-xl space-y-10 pb-24 md:pb-10">
+    <div className="mx-auto max-w-xl space-y-8 pb-24 md:pb-10">
       <audio ref={audioRef} preload="auto" onTimeUpdate={onAudioTime} />
 
       {items.map((post, index) => (
@@ -633,7 +735,7 @@ export function FeedList({
           onLike={handleLike}
           onSave={handleSave}
           onView={onView}
-          onDelete={remove}
+          onDelete={setConfirmPost}
           onReport={setReportPostId}
           onOpenLikers={openLikers}
           onOpenComments={(id) => setSheet({ type: "comments", postId: id })}
@@ -642,6 +744,16 @@ export function FeedList({
           onStopMusic={stopMusic}
         />
       ))}
+
+      <ConfirmDialog
+        open={confirmPost !== null}
+        title="Delete this post?"
+        message="This can't be undone."
+        confirmLabel="Delete"
+        destructive
+        onCancel={() => setConfirmPost(null)}
+        onConfirm={() => void confirmRemove()}
+      />
 
       {reportPostId !== null && (
         <ReportSheet
@@ -719,13 +831,20 @@ export function FeedList({
                       type="button"
                       onClick={() => sendTo(t, sheetPostId)}
                       disabled={done}
-                      className={`rounded-full px-4 py-1.5 text-sm font-semibold ${
+                      className={`flex items-center gap-1 rounded-full px-4 py-1.5 text-sm font-semibold transition active:scale-95 ${
                         done
                           ? "bg-foreground/10 text-foreground/50"
                           : "bg-brand text-white"
                       }`}
                     >
-                      {done ? "Sent ✓" : "Send"}
+                      {done ? (
+                        <>
+                          <Icon name="check" className="h-3.5 w-3.5" strokeWidth={2.4} />
+                          Sent
+                        </>
+                      ) : (
+                        "Send"
+                      )}
                     </button>
                   </li>
                 );
@@ -737,7 +856,7 @@ export function FeedList({
             <button
               type="button"
               onClick={() => copyLink(sheetPostId)}
-              className="flex-1 rounded-xl bg-foreground/10 py-2 text-sm font-medium"
+              className="flex-1 rounded-xl border border-foreground/[0.08] bg-foreground/[0.06] py-2.5 text-sm font-medium backdrop-blur-sm transition-all hover:bg-foreground/[0.1] active:scale-95"
             >
               Copy link
             </button>
@@ -745,7 +864,7 @@ export function FeedList({
               <button
                 type="button"
                 onClick={() => nativeShare(sheetPostId)}
-                className="flex-1 rounded-xl bg-foreground/10 py-2 text-sm font-medium"
+                className="flex-1 rounded-xl border border-foreground/[0.08] bg-foreground/[0.06] py-2.5 text-sm font-medium backdrop-blur-sm transition-all hover:bg-foreground/[0.1] active:scale-95"
               >
                 More…
               </button>
@@ -755,8 +874,11 @@ export function FeedList({
       )}
 
       {toast && (
-        <div className="pointer-events-none fixed left-1/2 top-20 z-[60] -translate-x-1/2 rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background">
-          {toast}
+        <div className="pointer-events-none fixed inset-x-0 top-20 z-[60] flex justify-center">
+          <div className="glass-dropdown flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium animate-in fade-in-0 slide-in-from-top-2 duration-300">
+            <Icon name="check" className="h-4 w-4 text-brand" strokeWidth={2.4} />
+            {toast}
+          </div>
         </div>
       )}
     </div>

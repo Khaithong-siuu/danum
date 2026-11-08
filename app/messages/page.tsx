@@ -179,11 +179,11 @@ async function InboxContent({
           placeholder="New message to... (username)"
           maxLength={30}
           required
-          className="flex-1 rounded-full border bg-background px-4 py-2 text-sm"
+          className="flex-1 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] backdrop-blur-md px-4 py-2 text-sm focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
         />
         <button
           type="submit"
-          className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition"
+          className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white shadow-sm shadow-brand/25 transition-all hover:opacity-95 active:scale-95"
         >
           Chat
         </button>
@@ -204,7 +204,7 @@ async function InboxContent({
               <li key={item.id}>
                 <Link
                   href={`/messages/${item.id}`}
-                  className="flex items-center gap-3 py-3 hover:bg-foreground/5"
+                  className="flex items-center gap-3 py-3 px-2 rounded-2xl transition hover:bg-foreground/[0.04] active:scale-[0.99]"
                 >
                   {avatar ? (
                     <Image

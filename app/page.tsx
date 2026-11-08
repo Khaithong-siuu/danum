@@ -79,22 +79,28 @@ async function HomeBody({
         </Suspense>
       </div>
 
-      <div className="mx-auto mb-6 grid max-w-xl grid-cols-2 rounded-xl bg-foreground/10 p-1 text-center text-sm font-medium">
+      <div className="mx-auto mb-6 grid max-w-xl grid-cols-2 rounded-2xl border border-foreground/[0.06] bg-foreground/[0.03] p-1.5 text-center text-sm font-semibold backdrop-blur-lg">
         <Link
           href="/"
-          className={`rounded-lg py-2 transition ${
-            !following ? "bg-background shadow-sm" : "text-foreground/60"
+          className={`flex items-center justify-center gap-2 rounded-xl py-2.5 transition-all duration-200 ${
+            !following
+              ? "bg-background text-foreground shadow-sm shadow-foreground/5 border border-foreground/10"
+              : "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.03]"
           }`}
         >
-          For you
+          <span>✨</span>
+          <span>For you</span>
         </Link>
         <Link
           href="/?tab=following"
-          className={`rounded-lg py-2 transition ${
-            following ? "bg-background shadow-sm" : "text-foreground/60"
+          className={`flex items-center justify-center gap-2 rounded-xl py-2.5 transition-all duration-200 ${
+            following
+              ? "bg-background text-foreground shadow-sm shadow-foreground/5 border border-foreground/10"
+              : "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.03]"
           }`}
         >
-          Following
+          <span>👥</span>
+          <span>Following</span>
         </Link>
       </div>
 
@@ -119,13 +125,13 @@ export default function Home({
 }) {
   return (
     <main className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-40 border-b border-foreground/10 bg-background/85 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
+      <nav className="sticky top-0 z-40 border-b glass-bar pt-[env(safe-area-inset-top)] shadow-sm">
         <div className="mx-auto flex h-14 max-w-xl items-center justify-between px-4">
-          <Link href="/" className="text-2xl font-bold tracking-tight">
+          <Link href="/" className="text-2xl font-bold tracking-tight text-foreground">
             Danum
           </Link>
 
-          <div className="flex items-center">
+          <div className="flex items-center gap-1">
             {/* On a phone these live in the bottom tab bar */}
             <IconLink href="/search" name="search" label="Find people" hideOnMobile />
             <IconLink href="/reels" name="reels" label="Reels" hideOnMobile />

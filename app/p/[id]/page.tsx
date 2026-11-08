@@ -57,9 +57,13 @@ export default function PostPage({
 }) {
   return (
     <main className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-40 border-b border-foreground/10 bg-background/90 backdrop-blur-md">
+      <nav className="sticky top-0 z-40 border-b glass-bar shadow-sm">
         <div className="mx-auto flex h-14 max-w-xl items-center gap-3 px-4">
-          <Link href="/" aria-label="Back to feed" className="text-xl">
+          <Link
+            href="/"
+            aria-label="Back to feed"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground/[0.05] hover:bg-foreground/[0.1] active:scale-95 transition-all text-base"
+          >
             ←
           </Link>
           <span className="text-lg font-semibold">Post</span>

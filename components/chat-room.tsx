@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Sheet } from "@/components/sheet";
 import { ListenTogether } from "@/components/listen-together";
+import { EmojiText } from "@/components/emoji-text";
 import type { Track } from "@/lib/music";
 import type { ListeningSession } from "@/lib/listening";
 import {
@@ -258,7 +259,9 @@ export function ChatRoom({
                       </span>
                     </Link>
                   ) : (
-                    <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                    <p className="whitespace-pre-wrap break-words">
+                      <EmojiText text={m.content} />
+                    </p>
                   )}
                   <p
                     className="mt-1 text-[10px] opacity-70"

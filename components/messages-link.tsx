@@ -15,7 +15,12 @@ export async function MessagesLink() {
     .select("last_read_at, conversations(last_message_at)")
     .eq("user_id", user.id);
 
-  const unread = (rows ?? []).filter((row: any) => {
+  type ConvMemberRow = {
+    last_read_at: string;
+    conversations: { last_message_at: string } | { last_message_at: string }[] | null;
+  };
+
+  const unread = ((rows as unknown as ConvMemberRow[]) ?? []).filter((row) => {
     const conv = Array.isArray(row.conversations)
       ? row.conversations[0]
       : row.conversations;

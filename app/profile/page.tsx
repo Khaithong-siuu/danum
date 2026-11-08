@@ -265,12 +265,12 @@ async function ProfileContent({
       <h1 className="text-3xl font-bold mt-4 mb-6">Your Profile</h1>
 
       {saved && (
-        <div className="mb-4 rounded-lg bg-green-500/10 px-4 py-3 text-sm text-green-600">
+        <div className="mb-4 rounded-xl bg-green-500/10 px-4 py-3 text-sm text-green-600 backdrop-blur-sm border border-green-500/10">
           Profile saved.
         </div>
       )}
       {error && (
-        <div className="mb-4 rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-600">
+        <div className="mb-4 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-600 backdrop-blur-sm border border-red-500/10">
           {error}
         </div>
       )}
@@ -301,7 +301,7 @@ async function ProfileContent({
         </p>
       )}
 
-      <div className="mb-6 rounded-lg border border-foreground/10 px-4 py-3 text-sm">
+      <div className="mb-6 rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-4 py-3 text-sm backdrop-blur-sm">
         <p className="font-medium">Email</p>
         <p className="text-foreground/70">{user.email}</p>
         <p className="mt-1 text-xs text-foreground/50">
@@ -309,7 +309,7 @@ async function ProfileContent({
         </p>
       </div>
 
-      <div className="mb-8 rounded-lg border border-foreground/10 px-4 py-4">
+      <div className="mb-8 rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-4 py-4 backdrop-blur-sm">
         <h2 className="text-lg font-semibold mb-4">Appearance</h2>
         <ThemeSettings />
       </div>
@@ -329,7 +329,7 @@ async function ProfileContent({
             type="text"
             name="username"
             defaultValue={profile?.username || ""}
-            className="w-full border rounded px-3 py-2 bg-background"
+            className="w-full border border-foreground/[0.08] rounded-lg px-3 py-2 bg-foreground/[0.03] focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/40 transition-all"
             placeholder="Choose a username"
             required
             minLength={3}
@@ -345,7 +345,7 @@ async function ProfileContent({
             type="text"
             name="full_name"
             defaultValue={profile?.full_name || ""}
-            className="w-full border rounded px-3 py-2 bg-background"
+            className="w-full border border-foreground/[0.08] rounded-lg px-3 py-2 bg-foreground/[0.03] focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/40 transition-all"
             placeholder="Your full name"
             maxLength={60}
           />
@@ -370,7 +370,7 @@ async function ProfileContent({
             type="text"
             name="website"
             defaultValue={profile?.website || ""}
-            className="w-full border rounded px-3 py-2 bg-background"
+            className="w-full border border-foreground/[0.08] rounded-lg px-3 py-2 bg-foreground/[0.03] focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/40 transition-all"
             placeholder="example.com"
             maxLength={200}
           />
@@ -378,7 +378,7 @@ async function ProfileContent({
 
         <button
           type="submit"
-          className="w-full bg-brand text-white py-2 rounded hover:opacity-90 transition"
+          className="w-full bg-brand text-white py-2.5 rounded-xl font-medium hover:opacity-90 transition-all active:scale-[0.98] shadow-md shadow-brand/20"
         >
           Save Profile
         </button>

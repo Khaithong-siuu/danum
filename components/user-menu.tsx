@@ -52,7 +52,7 @@ export function UserMenu({
   const initial = (username?.[0] ?? "?").toUpperCase();
 
   const itemClass =
-    "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-foreground/5";
+    "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition hover:bg-foreground/[0.06] active:scale-[0.98]";
 
   return (
     <div ref={ref} className="relative">
@@ -77,7 +77,7 @@ export function UserMenu({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl border border-foreground/10 bg-background p-1.5 shadow-xl">
+        <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl glass-dropdown p-1.5">
           {username && (
             <p className="truncate px-3 pb-1 pt-2 text-xs text-foreground/50">
               Signed in as <span className="font-semibold">{username}</span>

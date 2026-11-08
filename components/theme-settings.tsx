@@ -39,10 +39,10 @@ export function ThemeSettings() {
                 key={mode.value}
                 type="button"
                 onClick={() => setTheme(mode.value)}
-                className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                className={`rounded-xl border px-3 py-2 text-sm font-medium transition-all active:scale-95 ${
                   active
-                    ? "border-brand text-brand bg-foreground/5"
-                    : "border-foreground/15 hover:bg-foreground/5"
+                    ? "border-brand text-brand bg-brand/10 shadow-sm backdrop-blur-sm"
+                    : "border-foreground/10 bg-foreground/[0.03] hover:bg-foreground/[0.06]"
                 }`}
               >
                 {mode.label}
@@ -65,10 +65,10 @@ export function ThemeSettings() {
               onClick={() => chooseAccent(a.key)}
               aria-label={`${a.label} accent`}
               title={a.label}
-              className={`h-9 w-9 rounded-full transition ${
+              className={`h-9 w-9 rounded-full transition-all duration-200 active:scale-95 ${
                 accent === a.key
-                  ? "ring-2 ring-offset-2 ring-foreground ring-offset-background"
-                  : "hover:scale-110"
+                  ? "ring-2 ring-offset-2 ring-foreground ring-offset-background scale-105"
+                  : "hover:scale-105 opacity-80 hover:opacity-100"
               }`}
             >
               {/* data-accent makes this swatch use its own --brand value */}

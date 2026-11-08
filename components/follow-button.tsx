@@ -34,12 +34,12 @@ export function FollowButton({
     <button
       type="button"
       onClick={handleClick}
-      className={`rounded-lg font-semibold transition active:scale-95 ${
+      className={`rounded-full font-semibold transition-all duration-200 active:scale-95 ${
         compact ? "px-3 py-1 text-sm" : "px-5 py-1.5 text-sm"
       } ${
         following
-          ? "bg-foreground/10 text-foreground"
-          : "bg-brand text-white hover:opacity-90"
+          ? "bg-foreground/[0.08] hover:bg-foreground/[0.12] text-foreground border border-foreground/[0.06] backdrop-blur-sm"
+          : "bg-brand text-white shadow-sm shadow-brand/25 hover:opacity-95"
       }`}
     >
       {following ? "Following" : "Follow"}

@@ -14,14 +14,16 @@ function Ring({
 }) {
   const bg =
     state === "unseen"
-      ? "bg-brand"
+      ? "gradient-border-story shadow-sm shadow-pink-500/20"
       : state === "seen"
-        ? "bg-foreground/25"
-        : "bg-transparent";
+        ? "bg-foreground/20"
+        : "bg-foreground/10";
 
   return (
-    <div className={`rounded-full p-[3px] ${bg}`}>
-      <div className="rounded-full bg-background p-[2px]">{children}</div>
+    <div
+      className={`group relative rounded-full p-[2.5px] transition-all duration-300 hover:scale-105 ${bg}`}
+    >
+      <div className="rounded-full bg-background p-[2px] transition-colors">{children}</div>
     </div>
   );
 }
@@ -128,7 +130,7 @@ export async function StoriesBar() {
         <Link
           href="/stories/new"
           aria-label="Add to your story"
-          className="absolute right-0 top-11 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-xs font-bold text-white ring-2 ring-background"
+          className="absolute -bottom-0.5 right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-xs font-bold text-white shadow-md shadow-brand/30 ring-2 ring-background transition-transform hover:scale-110 active:scale-95"
         >
           +
         </Link>

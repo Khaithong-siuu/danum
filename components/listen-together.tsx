@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Sheet } from "@/components/sheet";
 import type { Track } from "@/lib/music";
 import type { ChatTheme } from "@/lib/chat-themes";
@@ -83,6 +84,7 @@ export function ListenTogether({
   const [results, setResults] = useState<Track[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmEnd, setConfirmEnd] = useState(false);
 
   // Line this phone's clock up with the database's
   useEffect(() => {
@@ -298,7 +300,7 @@ export function ListenTogether({
   }
 
   async function end() {
-    if (!window.confirm("End listening together?")) return;
+    setConfirmEnd(false);
 
     sessionRef.current = null;
     setSession(null);
@@ -371,7 +373,7 @@ export function ListenTogether({
               </button>
               <button
                 type="button"
-                onClick={() => void end()}
+                onClick={() => setConfirmEnd(true)}
                 className="shrink-0 text-xs font-medium text-red-500"
               >
                 End
@@ -444,6 +446,16 @@ export function ListenTogether({
           </div>
         </Sheet>
       )}
+
+      <ConfirmDialog
+        open={confirmEnd}
+        title="End listening together?"
+        message="The song will stop for both of you."
+        confirmLabel="End"
+        destructive
+        onCancel={() => setConfirmEnd(false)}
+        onConfirm={() => void end()}
+      />
     </>
   );
 }

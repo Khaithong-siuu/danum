@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { suspendUser, unsuspendUser } from "@/app/actions/suspensions";
 
 const DURATIONS = [
@@ -26,15 +27,22 @@ export function AdminUserActions({
   const [duration, setDuration] = useState("7");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState<"suspend" | "lift" | null>(null);
 
-  async function suspend() {
+  function requestSuspend() {
     if (busy) return;
 
     if (reason.trim().length < 3) {
       setError("Give a reason of at least 3 characters.");
       return;
     }
-    if (!window.confirm(`Suspend ${username}?`)) return;
+
+    setError(null);
+    setConfirm("suspend");
+  }
+
+  async function suspend() {
+    if (busy) return;
 
     setBusy(true);
     setError(null);
@@ -57,9 +65,12 @@ export function AdminUserActions({
     router.refresh();
   }
 
+  function requestLift() {
+    if (!busy) setConfirm("lift");
+  }
+
   async function lift() {
     if (busy) return;
-    if (!window.confirm(`Lift the suspension on ${username}?`)) return;
 
     setBusy(true);
     setError(null);
@@ -79,12 +90,38 @@ export function AdminUserActions({
     router.refresh();
   }
 
+  const dialog = (
+    <ConfirmDialog
+      open={confirm !== null}
+      title={
+        confirm === "lift"
+          ? `Lift the suspension on ${username}?`
+          : `Suspend ${username}?`
+      }
+      message={
+        confirm === "lift"
+          ? "They'll be able to use Danum again right away."
+          : "They won't be able to post or message until it ends."
+      }
+      confirmLabel={confirm === "lift" ? "Lift" : "Suspend"}
+      destructive={confirm === "suspend"}
+      onCancel={() => setConfirm(null)}
+      onConfirm={() => {
+        const which = confirm;
+        setConfirm(null);
+        if (which === "suspend") void suspend();
+        else if (which === "lift") void lift();
+      }}
+    />
+  );
+
   if (suspended) {
     return (
       <div>
+        {dialog}
         <button
           type="button"
-          onClick={() => void lift()}
+          onClick={requestLift}
           disabled={busy}
           className="rounded-lg bg-foreground/10 px-3 py-1.5 text-sm font-semibold disabled:opacity-50"
         >
@@ -97,6 +134,7 @@ export function AdminUserActions({
 
   return (
     <div>
+      {dialog}
       {!open ? (
         <button
           type="button"
@@ -131,7 +169,7 @@ export function AdminUserActions({
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => void suspend()}
+              onClick={requestSuspend}
               disabled={busy}
               className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
             >

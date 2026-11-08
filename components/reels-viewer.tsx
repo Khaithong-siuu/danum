@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CommentsSheet } from "@/components/comments-sheet";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ReportSheet } from "@/components/report-sheet";
+import { EmojiText } from "@/components/emoji-text";
 import type { AddResult, CommentData } from "@/lib/comments";
 import { formatCount } from "@/lib/reels";
 import { timeAgo } from "@/lib/time";
@@ -41,38 +43,83 @@ export type ReelData = {
   } | null;
 };
 
+/* ------------------------------------------------------------------ */
+/*  Icons (stroke icons, SF-Symbols-like weight)                       */
+/* ------------------------------------------------------------------ */
+
 const ICONS = {
-  heart:
-    "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z",
-  comment: "M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z",
-  bookmark: "M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z",
-  send: "M2.01 21L23 12 2.01 3 2 10l15 2-15 2z",
-  eye: "M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z",
+  heart: [
+    "M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z",
+  ],
+  comment: ["M7.9 20A9 9 0 1 0 4 16.1L2 22Z"],
+  send: ["m22 2-7 20-4-9-9-4Z", "M22 2 11 13"],
+  bookmark: ["m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"],
+  eye: [
+    "M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z",
+    "M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
+  ],
+  volumeOn: [
+    "M11 5 6 9H2v6h4l5 4V5Z",
+    "M15.54 8.46a5 5 0 0 1 0 7.07",
+    "M19.07 4.93a10 10 0 0 1 0 14.14",
+  ],
+  volumeOff: ["M11 5 6 9H2v6h4l5 4V5Z", "m22 9-6 6", "m16 9 6 6"],
+  back: ["m15 18-6-6 6-6"],
+  plus: ["M12 5v14", "M5 12h14"],
+  trash: [
+    "M3 6h18",
+    "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6",
+    "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2",
+  ],
+  flag: [
+    "M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z",
+    "M4 22v-7",
+  ],
+  layers: ["m12 2 10 5-10 5L2 7l10-5Z", "m2 17 10 5 10-5", "m2 12 10 5 10-5"],
+  check: ["M20 6 9 17l-5-5"],
+  music: [
+    "M9 18V5l12-2v13",
+    "M6 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
+    "M18 13a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
+  ],
 } as const;
+
+type IconName = keyof typeof ICONS;
 
 function Icon({
   name,
   filled = false,
-  className = "h-7 w-7",
+  className = "h-6 w-6",
+  strokeWidth = 1.9,
 }: {
-  name: keyof typeof ICONS;
+  name: IconName;
   filled?: boolean;
   className?: string;
+  strokeWidth?: number;
 }) {
   return (
     <svg
       viewBox="0 0 24 24"
       className={className}
       fill={filled ? "currentColor" : "none"}
-      stroke={filled ? "none" : "currentColor"}
-      strokeWidth={1.8}
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d={ICONS[name]} />
+      {ICONS[name].map((d, i) => (
+        <path key={i} d={d} />
+      ))}
     </svg>
   );
 }
+
+/* Frosted-glass surface used by every floating control on the reels */
+const GLASS =
+  "border border-white/15 bg-white/10 backdrop-blur-2xl shadow-[0_4px_20px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.25)]";
+const ROUND_BTN =
+  "flex items-center justify-center rounded-full text-white transition hover:bg-white/20 active:scale-90";
 
 function Avatar({ url, size }: { url: string | null; size: number }) {
   return url ? (
@@ -103,16 +150,16 @@ function Sheet({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end bg-black/50"
+      className="fixed inset-0 z-50 flex items-end bg-black/50 backdrop-blur-sm animate-in fade-in-0 duration-200"
       onClick={onClose}
     >
       <div
-        className="mx-auto max-h-[70dvh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-neutral-900/95 text-white backdrop-blur-xl"
+        className="mx-auto max-h-[70dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border-x border-t border-white/15 bg-neutral-900/70 text-white shadow-[0_-8px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur-3xl animate-in slide-in-from-bottom duration-300"
         style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-neutral-900/95 px-4 pb-3 pt-2 text-center">
-          <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-white/30" />
+        <div className="sticky top-0 bg-neutral-900/60 px-4 pb-3 pt-2.5 text-center backdrop-blur-3xl">
+          <div className="mx-auto mb-2 h-1.5 w-9 rounded-full bg-white/30" />
           <p className="text-sm font-semibold">{title}</p>
         </div>
         <div className="px-4">{children}</div>
@@ -162,26 +209,44 @@ export function ReelsViewer({
   const videoRefs = useRef(new Map<number, HTMLVideoElement>());
   const viewed = useRef(new Set<number>());
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const burstTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTap = useRef(0);
 
   const [items, setItems] = useState<ReelData[]>(reels);
   const [active, setActive] = useState(startIndex);
   const [soundOn, setSoundOn] = useState(false);
   const [paused, setPaused] = useState(false);
   const [clipProgress, setClipProgress] = useState(0);
+  const [videoProgress, setVideoProgress] = useState(0);
   const [sheet, setSheet] = useState<{
     type: "likers" | "share" | "comments";
     reelId: number;
   } | null>(null);
   const [reportId, setReportId] = useState<number | null>(null);
+  const [confirmReel, setConfirmReel] = useState<ReelData | null>(null);
   const [likers, setLikers] = useState<Person[] | null>(null);
   const [sent, setSent] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
   const [canShare, setCanShare] = useState(false);
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const [burst, setBurst] = useState<{ id: number; key: number } | null>(null);
 
   const current = items[Math.min(active, Math.max(0, items.length - 1))];
+  const currentId = current?.id;
+  const currentKind = current?.kind;
 
   useEffect(() => {
     setCanShare(typeof navigator !== "undefined" && "share" in navigator);
+  }, []);
+
+  // Clear any pending timers when leaving the page
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+      if (tapTimer.current) clearTimeout(tapTimer.current);
+      if (burstTimer.current) clearTimeout(burstTimer.current);
+    };
   }, []);
 
   // Open on the requested reel
@@ -274,6 +339,22 @@ export function ReelsViewer({
     return () => audio.removeEventListener("timeupdate", onTime);
   }, [current]);
 
+  // Progress of the video on screen
+  useEffect(() => {
+    setVideoProgress(0);
+    if (currentId === undefined || currentKind !== "video") return;
+
+    const video = videoRefs.current.get(currentId);
+    if (!video) return;
+
+    const onTime = () => {
+      if (video.duration) setVideoProgress(video.currentTime / video.duration);
+    };
+
+    video.addEventListener("timeupdate", onTime);
+    return () => video.removeEventListener("timeupdate", onTime);
+  }, [currentId, currentKind]);
+
   // Count a view after 1.5 seconds on a post
   useEffect(() => {
     if (!current || current.isOwner || viewed.current.has(current.id)) return;
@@ -350,6 +431,28 @@ export function ReelsViewer({
     }
   }
 
+  function triggerBurst(id: number) {
+    setBurst({ id, key: Date.now() });
+    if (burstTimer.current) clearTimeout(burstTimer.current);
+    burstTimer.current = setTimeout(() => setBurst(null), 800);
+  }
+
+  // One tap pauses or plays, a quick second tap likes
+  function handleTap(r: ReelData) {
+    const now = Date.now();
+
+    if (now - lastTap.current < 280) {
+      if (tapTimer.current) clearTimeout(tapTimer.current);
+      lastTap.current = 0;
+      if (!r.liked) void handleLike(r);
+      triggerBurst(r.id);
+      return;
+    }
+
+    lastTap.current = now;
+    tapTimer.current = setTimeout(() => setPaused((p) => !p), 280);
+  }
+
   function openLikers(id: number) {
     setSheet({ type: "likers", reelId: id });
     setLikers(null);
@@ -388,23 +491,39 @@ export function ReelsViewer({
     else showToast("Couldn't send. Try again.");
   }
 
-  async function remove(r: ReelData) {
-    if (!window.confirm("Delete this post?")) return;
-    await deleteReel(r.id);
-    setItems((prev) => prev.filter((x) => x.id !== r.id));
+  async function confirmRemove() {
+    const r = confirmReel;
+    if (!r) return;
+
+    setConfirmReel(null);
+    try {
+      await deleteReel(r.id);
+      setItems((prev) => prev.filter((x) => x.id !== r.id));
+      showToast("Post deleted");
+    } catch {
+      showToast("Couldn't delete. Try again.");
+    }
   }
 
   if (items.length === 0) {
     return (
-      <div className="flex h-[100dvh] flex-col items-center justify-center gap-4 bg-black p-8 text-center text-white">
-        <p className="text-lg font-semibold">No reels yet</p>
+      <div className="flex h-[100dvh] flex-col items-center justify-center gap-5 bg-black p-8 text-center text-white">
+        <div className={`${GLASS} flex h-20 w-20 items-center justify-center rounded-full`}>
+          <Icon name="plus" className="h-9 w-9" strokeWidth={1.6} />
+        </div>
+        <div>
+          <p className="text-xl font-semibold tracking-tight">No reels yet</p>
+          <p className="mt-1 text-sm text-white/60">
+            Be the first to share something.
+          </p>
+        </div>
         <Link
           href="/reels/new"
-          className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white"
+          className="rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand/30 transition active:scale-95"
         >
-          Post the first one
+          Create a post
         </Link>
-        <Link href="/" className="text-sm text-white/70">
+        <Link href="/" className="text-sm text-white/60">
           Back to feed
         </Link>
       </div>
@@ -412,6 +531,13 @@ export function ReelsViewer({
   }
 
   const sheetReelId = sheet?.reelId ?? null;
+
+  const progress =
+    current?.music && soundOn
+      ? clipProgress
+      : current?.kind === "video"
+        ? videoProgress
+        : null;
 
   return (
     <div className="relative h-[100dvh] w-full bg-black text-white">
@@ -422,46 +548,50 @@ export function ReelsViewer({
         <Link
           href="/"
           aria-label="Back to feed"
-          className="pointer-events-auto rounded-full bg-black/40 px-3 py-1.5 text-sm backdrop-blur-md"
+          className={`pointer-events-auto h-10 w-10 ${GLASS} ${ROUND_BTN}`}
         >
-          ←
+          <Icon name="back" className="h-5 w-5" strokeWidth={2.2} />
         </Link>
-        <span className="text-base font-semibold drop-shadow">Reels</span>
+
+        <span className="text-[17px] font-semibold tracking-tight drop-shadow-md">
+          Reels
+        </span>
+
         <div className="pointer-events-auto flex items-center gap-2">
           <button
             type="button"
             onClick={toggleSound}
             aria-label={soundOn ? "Turn sound off" : "Turn sound on"}
-            className="rounded-full bg-black/40 px-3 py-1.5 text-sm backdrop-blur-md"
+            className={`h-10 w-10 ${GLASS} ${ROUND_BTN}`}
           >
-            {soundOn ? "🔊" : "🔇"}
+            <Icon name={soundOn ? "volumeOn" : "volumeOff"} className="h-5 w-5" />
           </button>
           <Link
             href="/reels/saved"
             aria-label="Saved"
-            className="rounded-full bg-black/40 px-3 py-1.5 text-sm backdrop-blur-md"
+            className={`h-10 w-10 ${GLASS} ${ROUND_BTN}`}
           >
-            🔖
+            <Icon name="bookmark" className="h-5 w-5" />
           </Link>
           <Link
             href="/reels/new"
             aria-label="New post"
-            className="rounded-full bg-black/40 px-3 py-1.5 text-sm font-bold backdrop-blur-md"
+            className={`h-10 w-10 ${GLASS} ${ROUND_BTN}`}
           >
-            ＋
+            <Icon name="plus" className="h-5 w-5" strokeWidth={2.2} />
           </Link>
         </div>
       </div>
 
-      {/* Progress of the music clip */}
-      {current?.music && soundOn && (
+      {/* Progress of the video or music clip */}
+      {progress !== null && (
         <div
-          className="absolute inset-x-4 z-30 h-0.5 rounded bg-white/30"
-          style={{ top: "calc(max(0.75rem, env(safe-area-inset-top)) + 3rem)" }}
+          className="pointer-events-none absolute inset-x-4 z-30 h-[3px] overflow-hidden rounded-full bg-white/25 backdrop-blur-sm"
+          style={{ top: "calc(max(0.75rem, env(safe-area-inset-top)) + 3.25rem)" }}
         >
           <div
-            className="h-full rounded bg-white"
-            style={{ width: `${clipProgress * 100}%` }}
+            className="h-full rounded-full bg-white"
+            style={{ width: `${progress * 100}%` }}
           />
         </div>
       )}
@@ -471,195 +601,294 @@ export function ReelsViewer({
         ref={containerRef}
         className="h-full snap-y snap-mandatory overflow-y-scroll overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {items.map((r, i) => (
-          <section
-            key={r.id}
-            data-index={i}
-            className="relative h-[100dvh] w-full snap-start snap-always overflow-hidden bg-black"
-          >
-            {r.kind === "video" ? (
-              <video
-                ref={(el) => {
-                  if (el) videoRefs.current.set(r.id, el);
-                  else videoRefs.current.delete(r.id);
-                }}
-                src={r.mediaUrl}
-                className="absolute inset-0 h-full w-full object-contain"
-                playsInline
-                loop
-                muted
-                preload={Math.abs(i - active) <= 1 ? "auto" : "metadata"}
-              />
-            ) : (
-              <Image
-                src={r.mediaUrl}
-                alt={r.caption || "Photo"}
-                fill
-                className="object-contain"
-                sizes="100vw"
-                priority={i === startIndex}
-              />
-            )}
+        {items.map((r, i) => {
+          const isActive = i === active;
+          const playing = soundOn && !paused && isActive;
 
-            {/* Tap to pause or play */}
-            <button
-              type="button"
-              aria-label="Play or pause"
-              onClick={() => setPaused((p) => !p)}
-              className="absolute inset-0 z-10"
-            />
-
-            {paused && i === active && (
-              <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-                <span className="rounded-full bg-black/50 px-5 py-4 text-3xl backdrop-blur-md">
-                  ❚❚
-                </span>
-              </div>
-            )}
-
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-64 bg-gradient-to-t from-black/70 to-transparent" />
-
-            {/* Actions */}
-            <div
-              className="absolute right-3 z-20 flex flex-col items-center gap-5"
-              style={{ bottom: "calc(env(safe-area-inset-bottom) + 1.5rem)" }}
+          return (
+            <section
+              key={r.id}
+              data-index={i}
+              className="relative h-[100dvh] w-full snap-start snap-always overflow-hidden bg-neutral-950"
             >
-              <div className="flex flex-col items-center">
-                <button
-                  type="button"
-                  onClick={() => handleLike(r)}
-                  aria-label={r.liked ? "Unlike" : "Like"}
-                  className={`transition active:scale-125 ${
-                    r.liked ? "text-red-500" : "text-white"
-                  }`}
-                >
-                  <Icon name="heart" filled={r.liked} className="h-8 w-8" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openLikers(r.id)}
-                  aria-label="See who liked this"
-                  className="mt-0.5 text-xs font-semibold"
-                >
-                  {formatCount(r.likeCount)}
-                </button>
-              </div>
+              {r.kind === "video" ? (
+                <video
+                  ref={(el) => {
+                    if (el) videoRefs.current.set(r.id, el);
+                    else videoRefs.current.delete(r.id);
+                  }}
+                  src={r.mediaUrl}
+                  className="absolute inset-0 h-full w-full object-contain"
+                  playsInline
+                  loop
+                  muted
+                  preload={Math.abs(i - active) <= 1 ? "auto" : "metadata"}
+                />
+              ) : (
+                <>
+                  {/* Soft blurred copy fills the bars around the photo */}
+                  <Image
+                    src={r.mediaUrl}
+                    alt=""
+                    fill
+                    aria-hidden="true"
+                    className="scale-125 object-cover opacity-60 blur-3xl"
+                    sizes="100vw"
+                  />
+                  <Image
+                    src={r.mediaUrl}
+                    alt={r.caption || "Photo"}
+                    fill
+                    className="object-contain"
+                    sizes="100vw"
+                    priority={i === startIndex}
+                  />
+                </>
+              )}
 
+              {/* Tap to pause or play, double tap to like */}
               <button
                 type="button"
-                onClick={() => setSheet({ type: "comments", reelId: r.id })}
-                aria-label="Comments"
-                className="flex flex-col items-center"
-              >
-                <Icon name="comment" filled className="h-7 w-7" />
-                <span className="mt-0.5 text-xs font-semibold">
-                  {formatCount(r.commentCount)}
-                </span>
-              </button>
+                aria-label="Play or pause"
+                onClick={() => handleTap(r)}
+                className="absolute inset-0 z-10"
+              />
 
-              <div className="flex flex-col items-center">
-                <Icon name="eye" filled className="h-7 w-7" />
-                <span className="mt-0.5 text-xs font-semibold">
-                  {formatCount(r.viewCount)}
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setSheet({ type: "share", reelId: r.id })}
-                aria-label="Send to a chat"
-                className="flex flex-col items-center"
-              >
-                <Icon name="send" filled className="h-7 w-7" />
-                <span className="mt-0.5 text-xs font-semibold">Send</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSave(r)}
-                aria-label={r.saved ? "Remove from saved" : "Save"}
-                className="flex flex-col items-center"
-              >
-                <Icon name="bookmark" filled={r.saved} className="h-7 w-7" />
-                <span className="mt-0.5 text-xs font-semibold">
-                  {r.saved ? "Saved" : "Save"}
-                </span>
-              </button>
-            </div>
-
-            {/* Author, caption, music */}
-            <div
-              className="absolute left-4 right-20 z-20"
-              style={{ bottom: "calc(env(safe-area-inset-bottom) + 1.25rem)" }}
-            >
-              {r.author && (
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/u/${r.author.username}`}
-                    className="flex items-center gap-2"
+              {paused && isActive && (
+                <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+                  <span
+                    className={`${GLASS} flex h-20 w-20 items-center justify-center rounded-full animate-in fade-in-0 zoom-in-50 duration-200`}
                   >
-                    <Avatar url={r.author.avatarUrl} size={36} />
-                    <span className="font-semibold">{r.author.username}</span>
-                  </Link>
-                  <span className="text-xs text-white/70">
-                    {timeAgo(r.createdAt)}
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="ml-1 h-9 w-9"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" />
+                    </svg>
                   </span>
-                  {r.isOwner ? (
-                    <button
-                      type="button"
-                      onClick={() => remove(r)}
-                      className="ml-auto text-xs font-medium text-red-400"
-                    >
-                      Delete
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setReportId(r.id)}
-                      className="ml-auto text-xs font-medium text-white/70"
-                    >
-                      Report
-                    </button>
-                  )}
                 </div>
               )}
 
-              {r.caption && (
-                <p className="mt-2 line-clamp-3 text-sm">{r.caption}</p>
+              {burst?.id === r.id && (
+                <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+                  <Icon
+                    key={burst.key}
+                    name="heart"
+                    filled
+                    className="h-28 w-28 animate-heart-burst text-[#ff3b5c] drop-shadow-[0_8px_30px_rgba(255,59,92,0.55)]"
+                  />
+                </div>
               )}
 
-              {r.mediaCount > 1 && (
-                <Link
-                  href={`/p/${r.id}`}
-                  className="mr-2 mt-2 inline-block rounded-full bg-black/40 px-3 py-1 text-xs backdrop-blur-md"
-                >
-                  ⧉ {r.mediaCount} photos and videos · Open post
-                </Link>
-              )}
+              {/* Readability gradients */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-[5] h-32 bg-gradient-to-b from-black/50 to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-80 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
 
-              {r.music && (
-                <div className="mt-2 inline-flex max-w-full items-center gap-2 rounded-full bg-black/40 py-1 pl-1 pr-3 text-xs backdrop-blur-md">
-                  {r.music.artworkUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={r.music.artworkUrl}
-                      alt=""
-                      referrerPolicy="no-referrer"
-                      className="h-6 w-6 shrink-0 rounded-full object-cover"
+              {/* Actions */}
+              <div
+                className="absolute right-3 z-20 flex flex-col items-center gap-4"
+                style={{ bottom: "calc(env(safe-area-inset-bottom) + 1.5rem)" }}
+              >
+                <div className="flex flex-col items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => handleLike(r)}
+                    aria-label={r.liked ? "Unlike" : "Like"}
+                    className={`h-12 w-12 ${GLASS} ${ROUND_BTN} ${
+                      r.liked ? "text-[#ff3b5c]" : ""
+                    }`}
+                  >
+                    <Icon
+                      key={r.liked ? "on" : "off"}
+                      name="heart"
+                      filled={r.liked}
+                      className={`h-6 w-6 ${r.liked ? "animate-like-pop" : ""}`}
                     />
-                  ) : (
-                    <span className="pl-2">♪</span>
-                  )}
-                  <span className="truncate">
-                    {r.music.title} · {r.music.artist}
-                    {!soundOn && " · tap 🔇 for sound"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => openLikers(r.id)}
+                    aria-label="See who liked this"
+                    className="text-[11px] font-semibold tabular-nums drop-shadow"
+                  >
+                    {formatCount(r.likeCount)}
+                  </button>
+                </div>
+
+                <div className="flex flex-col items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setSheet({ type: "comments", reelId: r.id })}
+                    aria-label="Comments"
+                    className={`h-12 w-12 ${GLASS} ${ROUND_BTN}`}
+                  >
+                    <Icon name="comment" className="h-6 w-6" />
+                  </button>
+                  <span className="text-[11px] font-semibold tabular-nums drop-shadow">
+                    {formatCount(r.commentCount)}
                   </span>
                 </div>
-              )}
-            </div>
-          </section>
-        ))}
+
+                <div className="flex flex-col items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setSheet({ type: "share", reelId: r.id })}
+                    aria-label="Send to a chat"
+                    className={`h-12 w-12 ${GLASS} ${ROUND_BTN}`}
+                  >
+                    <Icon name="send" className="h-6 w-6" />
+                  </button>
+                  <span className="text-[11px] font-semibold drop-shadow">
+                    Send
+                  </span>
+                </div>
+
+                <div className="flex flex-col items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => handleSave(r)}
+                    aria-label={r.saved ? "Remove from saved" : "Save"}
+                    className={`h-12 w-12 ${GLASS} ${ROUND_BTN}`}
+                  >
+                    <Icon name="bookmark" filled={r.saved} className="h-6 w-6" />
+                  </button>
+                  <span className="text-[11px] font-semibold drop-shadow">
+                    {r.saved ? "Saved" : "Save"}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1 text-white/70">
+                  <Icon name="eye" className="h-4 w-4" />
+                  <span className="text-[11px] font-semibold tabular-nums">
+                    {formatCount(r.viewCount)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Author, caption, music */}
+              <div
+                className="absolute left-4 right-[4.75rem] z-20"
+                style={{ bottom: "calc(env(safe-area-inset-bottom) + 1.25rem)" }}
+              >
+                {r.author && (
+                  <div className="flex items-center gap-2.5">
+                    <Link
+                      href={`/u/${r.author.username}`}
+                      className="flex min-w-0 items-center gap-2.5"
+                    >
+                      <span className="shrink-0 rounded-full ring-2 ring-white/40">
+                        <Avatar url={r.author.avatarUrl} size={36} />
+                      </span>
+                      <span className="truncate text-[15px] font-semibold drop-shadow">
+                        {r.author.username}
+                      </span>
+                    </Link>
+                    <span className="shrink-0 text-xs text-white/70">
+                      {timeAgo(r.createdAt)}
+                    </span>
+
+                    <div className="ml-auto shrink-0">
+                      {r.isOwner ? (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmReel(r)}
+                          className={`${GLASS} flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium text-red-300 transition active:scale-95`}
+                        >
+                          <Icon name="trash" className="h-3.5 w-3.5" />
+                          Delete
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setReportId(r.id)}
+                          aria-label="Report"
+                          className={`${GLASS} flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium text-white/80 transition active:scale-95`}
+                        >
+                          <Icon name="flag" className="h-3.5 w-3.5" />
+                          Report
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {r.caption && (
+                  <p
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setExpanded(expanded === r.id ? null : r.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setExpanded(expanded === r.id ? null : r.id);
+                      }
+                    }}
+                    className={`mt-2.5 cursor-pointer text-sm leading-snug drop-shadow ${
+                      expanded === r.id ? "" : "line-clamp-2"
+                    }`}
+                  >
+                    <EmojiText text={r.caption} />
+                  </p>
+                )}
+
+                {r.mediaCount > 1 && (
+                  <Link
+                    href={`/p/${r.id}`}
+                    className={`${GLASS} mt-2.5 mr-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium`}
+                  >
+                    <Icon name="layers" className="h-3.5 w-3.5" />
+                    {r.mediaCount} items · View post
+                  </Link>
+                )}
+
+                {r.music && (
+                  <div
+                    className={`${GLASS} mt-2.5 inline-flex max-w-full items-center gap-2 rounded-full py-1 pl-1 pr-3.5 text-xs text-white`}
+                  >
+                    {r.music.artworkUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={r.music.artworkUrl}
+                        alt=""
+                        referrerPolicy="no-referrer"
+                        className={`h-7 w-7 shrink-0 rounded-full object-cover ${
+                          playing ? "animate-vinyl" : ""
+                        }`}
+                      />
+                    ) : (
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15">
+                        <Icon name="music" className="h-3.5 w-3.5" />
+                      </span>
+                    )}
+                    <span className="truncate">
+                      {r.music.title} · {r.music.artist}
+                    </span>
+                    {!soundOn && (
+                      <Icon
+                        name="volumeOff"
+                        className="h-3.5 w-3.5 shrink-0 text-white/70"
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+            </section>
+          );
+        })}
       </div>
+
+      {/* Delete confirmation */}
+      <ConfirmDialog
+        open={confirmReel !== null}
+        title="Delete this post?"
+        message="This can't be undone."
+        confirmLabel="Delete"
+        destructive
+        onCancel={() => setConfirmReel(null)}
+        onConfirm={() => void confirmRemove()}
+      />
 
       {/* Report a post */}
       {reportId !== null && (
@@ -743,11 +972,18 @@ export function ReelsViewer({
                       type="button"
                       onClick={() => sendTo(t, sheetReelId)}
                       disabled={done}
-                      className={`rounded-full px-4 py-1.5 text-sm font-semibold ${
+                      className={`flex items-center gap-1 rounded-full px-4 py-1.5 text-sm font-semibold transition active:scale-95 ${
                         done ? "bg-white/10 text-white/60" : "bg-brand text-white"
                       }`}
                     >
-                      {done ? "Sent ✓" : "Send"}
+                      {done ? (
+                        <>
+                          <Icon name="check" className="h-3.5 w-3.5" strokeWidth={2.4} />
+                          Sent
+                        </>
+                      ) : (
+                        "Send"
+                      )}
                     </button>
                   </li>
                 );
@@ -759,7 +995,7 @@ export function ReelsViewer({
             <button
               type="button"
               onClick={() => copyLink(sheetReelId)}
-              className="flex-1 rounded-xl bg-white/10 py-2 text-sm font-medium"
+              className="flex-1 rounded-xl border border-white/10 bg-white/10 py-2.5 text-sm font-medium backdrop-blur-md transition-all hover:bg-white/15 active:scale-95"
             >
               Copy link
             </button>
@@ -767,7 +1003,7 @@ export function ReelsViewer({
               <button
                 type="button"
                 onClick={() => nativeShare(sheetReelId)}
-                className="flex-1 rounded-xl bg-white/10 py-2 text-sm font-medium"
+                className="flex-1 rounded-xl border border-white/10 bg-white/10 py-2.5 text-sm font-medium backdrop-blur-md transition-all hover:bg-white/15 active:scale-95"
               >
                 More…
               </button>
@@ -776,9 +1012,18 @@ export function ReelsViewer({
         </Sheet>
       )}
 
+      {/* Toast */}
       {toast && (
-        <div className="pointer-events-none absolute left-1/2 top-24 z-[60] -translate-x-1/2 rounded-full bg-white/90 px-4 py-2 text-sm font-medium text-black">
-          {toast}
+        <div
+          className="pointer-events-none absolute inset-x-0 z-[60] flex justify-center"
+          style={{ top: "calc(max(0.75rem, env(safe-area-inset-top)) + 3.75rem)" }}
+        >
+          <div
+            className={`${GLASS} flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white animate-in fade-in-0 slide-in-from-top-2 duration-300`}
+          >
+            <Icon name="check" className="h-4 w-4" strokeWidth={2.4} />
+            {toast}
+          </div>
         </div>
       )}
     </div>

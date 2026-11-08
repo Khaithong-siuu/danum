@@ -8,6 +8,7 @@ import { fadeGradient, imageStyle, normalizeAdjust } from "@/lib/theme-image";
 import { formatCount } from "@/lib/reels";
 import { FollowButton } from "@/components/follow-button";
 import { ProfileActions } from "@/components/profile-actions";
+import { EmojiText } from "@/components/emoji-text";
 import { toggleFollow } from "@/app/actions/follows";
 
 export default async function PublicProfilePage({
@@ -150,7 +151,7 @@ export default async function PublicProfilePage({
     >
       {themed && <style dangerouslySetInnerHTML={{ __html: themeCss }} />}
 
-      <nav className="sticky top-0 z-50 border-b border-foreground/10 bg-background/90 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 border-b glass-bar shadow-sm">
         <div className="mx-auto flex h-14 max-w-xl items-center px-4">
           <Link href="/" className="text-2xl font-bold tracking-tight">
             Danum
@@ -234,7 +235,9 @@ export default async function PublicProfilePage({
               </div>
 
               {profile.bio && (
-                <p className="mt-2 whitespace-pre-wrap text-sm">{profile.bio}</p>
+                <p className="mt-2 whitespace-pre-wrap text-sm">
+                  <EmojiText text={profile.bio} />
+                </p>
               )}
               {profile.website && (
                 <a
@@ -251,7 +254,7 @@ export default async function PublicProfilePage({
                 {isOwner ? (
                   <Link
                     href="/profile"
-                    className="inline-block rounded-lg border border-foreground/20 px-3 py-1 text-sm font-medium hover:bg-foreground/5"
+                    className="inline-block rounded-full border border-foreground/[0.08] bg-foreground/[0.05] hover:bg-foreground/[0.09] active:scale-95 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm transition-all"
                   >
                     Edit profile
                   </Link>

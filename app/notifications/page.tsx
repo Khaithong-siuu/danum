@@ -253,8 +253,8 @@ async function NotificationsContent() {
     return (
       <li
         key={item.key}
-        className={`flex items-center gap-3 rounded-xl px-2 py-3 ${
-          item.unread ? "bg-brand/5" : ""
+        className={`flex items-center gap-3 rounded-2xl px-3 py-3 transition hover:bg-foreground/[0.04] active:scale-[0.99] ${
+          item.unread ? "bg-brand/5 border border-brand/10 backdrop-blur-sm" : ""
         }`}
       >
         <Link href={href} className="flex min-w-0 flex-1 items-center gap-3">

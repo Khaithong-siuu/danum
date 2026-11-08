@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Sheet } from "@/components/sheet";
 import { ReportSheet } from "@/components/report-sheet";
 import { timeAgo } from "@/lib/time";
@@ -170,6 +171,7 @@ export function CommentsSheet({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reportId, setReportId] = useState<number | null>(null);
+  const [confirmComment, setConfirmComment] = useState<CommentData | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -233,8 +235,14 @@ export function CommentsSheet({
     }
   }
 
-  async function handleDelete(c: CommentData) {
-    if (!window.confirm("Delete this comment?")) return;
+  function handleDelete(c: CommentData) {
+    setConfirmComment(c);
+  }
+
+  async function confirmDelete() {
+    const c = confirmComment;
+    if (!c) return;
+    setConfirmComment(null);
 
     const replyCount = c.parentId === null ? (repliesOf.get(c.id)?.length ?? 0) : 0;
 
@@ -397,7 +405,7 @@ export function CommentsSheet({
                 }}
                 maxLength={COMMENT_MAX}
                 placeholder={replyTo ? "Write a reply..." : "Add a comment..."}
-                className="min-w-0 flex-1 rounded-full border bg-background px-4 py-2 text-sm"
+                className="min-w-0 flex-1 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] backdrop-blur-md px-4 py-2 text-sm focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
               />
               <button
                 type="button"
@@ -451,6 +459,16 @@ export function CommentsSheet({
           </div>
         )}
       </Sheet>
+
+      <ConfirmDialog
+        open={confirmComment !== null}
+        title="Delete this comment?"
+        message="This can't be undone."
+        confirmLabel="Delete"
+        destructive
+        onCancel={() => setConfirmComment(null)}
+        onConfirm={() => void confirmDelete()}
+      />
 
       {reportId !== null && (
         <ReportSheet

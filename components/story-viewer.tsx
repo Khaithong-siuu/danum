@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { timeAgo } from "@/lib/time";
 
 export type StoryItem = {
@@ -36,6 +37,7 @@ export function StoryViewer({
   const [index, setIndex] = useState(startIndex);
   const [progress, setProgress] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const holdStart = useRef(0);
 
   const story = stories[index];
@@ -75,8 +77,10 @@ export function StoryViewer({
     if (storyId !== undefined) void markViewed(storyId);
   }, [storyId, markViewed]);
 
-  // Keyboard controls
+  // Keyboard controls (off while the delete dialog is open)
   useEffect(() => {
+    if (confirmOpen) return;
+
     function onKey(e: KeyboardEvent) {
       if (e.key === "ArrowRight") goNext();
       else if (e.key === "ArrowLeft") goPrev();
@@ -84,12 +88,23 @@ export function StoryViewer({
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [goNext, goPrev, router]);
+  }, [goNext, goPrev, router, confirmOpen]);
 
-  async function handleDelete() {
+  function askDelete() {
     if (!story) return;
-    if (!window.confirm("Delete this story?")) return;
+    setPaused(true);
+    setConfirmOpen(true);
+  }
 
+  function cancelDelete() {
+    setConfirmOpen(false);
+    setPaused(false);
+  }
+
+  async function confirmDelete() {
+    if (!story) return;
+
+    setConfirmOpen(false);
     setPaused(true);
     const id = story.id;
     await deleteStory(id);
@@ -195,7 +210,7 @@ export function StoryViewer({
               {isOwner && (
                 <button
                   type="button"
-                  onClick={handleDelete}
+                  onClick={askDelete}
                   className="text-sm font-medium text-red-400 hover:text-red-300"
                 >
                   Delete
@@ -219,6 +234,16 @@ export function StoryViewer({
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Delete this story?"
+        message="This can't be undone."
+        confirmLabel="Delete"
+        destructive
+        onCancel={cancelDelete}
+        onConfirm={() => void confirmDelete()}
+      />
     </div>
   );
 }

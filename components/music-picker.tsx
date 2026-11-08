@@ -147,7 +147,7 @@ export function MusicPicker({
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-foreground/10 p-4">
+    <div className="space-y-3 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] p-4 backdrop-blur-md">
       <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={stop} />
 
       <div className="flex items-center justify-between">
@@ -215,7 +215,7 @@ export function MusicPicker({
           <button
             type="button"
             onClick={playClip}
-            className="w-full rounded-xl bg-foreground/10 py-2 text-sm font-medium"
+            className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.05] hover:bg-foreground/[0.09] active:scale-[0.98] py-2.5 text-sm font-medium transition-all backdrop-blur-sm"
           >
             {playingKey === "clip" ? "■ Stop preview" : "▶ Preview clip"}
           </button>
@@ -227,7 +227,7 @@ export function MusicPicker({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="w-full rounded-xl bg-foreground/10 py-2 text-sm font-medium"
+          className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.05] hover:bg-foreground/[0.09] active:scale-[0.98] py-2.5 text-sm font-medium transition-all backdrop-blur-sm"
         >
           Add music
         </button>
@@ -243,7 +243,7 @@ export function MusicPicker({
               placeholder="Search any song or artist"
               maxLength={80}
               autoFocus
-              className="min-w-0 flex-1 rounded-full border bg-background px-4 py-2 text-sm"
+              className="min-w-0 flex-1 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] backdrop-blur-md px-4 py-2 text-sm focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
             />
             <button
               type="button"

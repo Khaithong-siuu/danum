@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Sheet } from "@/components/sheet";
 import { ReportSheet } from "@/components/report-sheet";
 import { blockUser, unblockUser } from "@/app/actions/safety";
@@ -18,18 +19,20 @@ export function ProfileActions({
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [confirmBlock, setConfirmBlock] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function toggleBlock() {
+  // Blocking asks first, unblocking doesn't
+  function requestToggle() {
     if (busy) return;
 
-    if (!initiallyBlocked) {
-      const ok = window.confirm(
-        `Block ${username}? They won't be able to see your posts, message you or follow you. You can unblock them any time.`
-      );
-      if (!ok) return;
-    }
+    if (initiallyBlocked) void performToggle();
+    else setConfirmBlock(true);
+  }
+
+  async function performToggle() {
+    if (busy) return;
 
     setBusy(true);
     setError(null);
@@ -67,7 +70,7 @@ export function ProfileActions({
 
             <button
               type="button"
-              onClick={() => void toggleBlock()}
+              onClick={requestToggle}
               disabled={busy}
               className="w-full rounded-xl px-3 py-3 text-left text-sm font-medium text-red-600 hover:bg-foreground/5 disabled:opacity-50"
             >
@@ -95,6 +98,19 @@ export function ProfileActions({
           onClose={() => setReportOpen(false)}
         />
       )}
+
+      <ConfirmDialog
+        open={confirmBlock}
+        title={`Block ${username}?`}
+        message="They won't be able to see your posts, message you or follow you. You can unblock them any time."
+        confirmLabel="Block"
+        destructive
+        onCancel={() => setConfirmBlock(false)}
+        onConfirm={() => {
+          setConfirmBlock(false);
+          void performToggle();
+        }}
+      />
     </>
   );
 }

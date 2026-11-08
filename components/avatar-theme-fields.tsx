@@ -133,6 +133,7 @@ export function AvatarThemeFields({
     const objectUrl = URL.createObjectURL(file);
     await readInto(objectUrl, setAvatarColor, "avatar");
     URL.revokeObjectURL(objectUrl);
+
   }
 
   async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
