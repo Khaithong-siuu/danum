@@ -57,7 +57,7 @@ function snippet(c: CommentPreview | undefined): string {
   if (!c) return "";
   const text = c.content.trim();
   if (text) return text.length > 80 ? `${text.slice(0, 80)}…` : text;
-  return c.image_url ? "📷 Photo" : "";
+  return c.image_url ? "Photo" : "";
 }
 
 function Avatar({ url }: { url: string | null }) {
@@ -67,7 +67,7 @@ function Avatar({ url }: { url: string | null }) {
       alt=""
       width={44}
       height={44}
-      className="h-11 w-11 shrink-0 rounded-full object-cover"
+      className="h-11 w-11 shrink-0 rounded-full object-cover ring-1 ring-foreground/10"
     />
   ) : (
     <div className="h-11 w-11 shrink-0 rounded-full bg-foreground/10" />
@@ -78,7 +78,7 @@ function Thumb({ post }: { post: PostPreview | undefined }) {
   if (!post || !isStorageImageUrl(post.media_url)) return null;
 
   return (
-    <span className="relative block h-11 w-11 shrink-0 overflow-hidden rounded-md bg-foreground/10">
+    <span className="relative block h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-foreground/10">
       {post.kind === "video" ? (
         <video
           src={`${post.media_url}#t=0.1`}
@@ -253,15 +253,21 @@ async function NotificationsContent() {
     return (
       <li
         key={item.key}
-        className={`flex items-center gap-3 rounded-2xl px-3 py-3 transition hover:bg-foreground/[0.04] active:scale-[0.99] ${
-          item.unread ? "bg-brand/5 border border-brand/10 backdrop-blur-sm" : ""
+        className={`glass-card flex items-center gap-3 rounded-[22px] p-3 transition-all duration-200 active:scale-[0.99] ${
+          item.unread ? "ring-1 ring-brand/30" : ""
         }`}
       >
         <Link href={href} className="flex min-w-0 flex-1 items-center gap-3">
           <Avatar url={avatarUrl} />
-          <p className="min-w-0 flex-1 break-words text-sm">
+          <p className="min-w-0 flex-1 break-words text-[15px] leading-snug">
             <span className="font-semibold">{who}</span> {what}{" "}
-            <span className="text-foreground/50">{timeAgo(time)}</span>
+            <span className="whitespace-nowrap text-foreground/45">{timeAgo(time)}</span>
+            {item.unread && (
+              <span
+                className="ml-1.5 inline-block h-2 w-2 rounded-full bg-brand align-middle"
+                aria-label="New"
+              />
+            )}
           </p>
           {!followTarget && <Thumb post={post} />}
         </Link>
@@ -280,40 +286,70 @@ async function NotificationsContent() {
 
   return (
     <div className="mx-auto max-w-xl p-6">
-      <Link href="/" className="text-sm text-foreground/60 hover:text-foreground">
-        ← Back to feed
+      <Link
+        href="/"
+        className="inline-flex items-center gap-0.5 text-sm font-medium text-brand transition active:opacity-60"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          className="-ml-1 h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+        Feed
       </Link>
 
-      <h1 className="mb-6 mt-4 text-3xl font-bold">Activity</h1>
+      <h1 className="mb-6 mt-3 text-[34px] font-bold tracking-tight">Activity</h1>
 
       {rows.some((r) => r.read_at === null) && (
         <MarkNotificationsRead markRead={markNotificationsRead} />
       )}
 
       {items.length === 0 ? (
-        <div className="py-20 text-center text-foreground/60">
-          <p className="mb-1 text-lg font-medium text-foreground">No activity yet</p>
-          <p className="text-sm">
+        <div className="flex flex-col items-center py-20 text-center text-foreground/60">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-foreground/[0.06] text-foreground/50">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-8 w-8"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.6}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9z" />
+              <path d="M10 19a2 2 0 0 0 4 0" />
+            </svg>
+          </div>
+          <p className="mb-1 text-lg font-semibold text-foreground">No activity yet</p>
+          <p className="max-w-xs text-sm">
             Likes, comments, replies and new followers will show up here.
           </p>
         </div>
       ) : (
         <>
           {fresh.length > 0 && (
-            <section className="mb-6">
-              <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-foreground/50">
+            <section className="mb-7">
+              <h2 className="mb-2.5 px-1 text-[13px] font-semibold uppercase tracking-wider text-foreground/45">
                 New
               </h2>
-              <ul>{fresh.map(renderItem)}</ul>
+              <ul className="space-y-2">{fresh.map(renderItem)}</ul>
             </section>
           )}
 
           {earlier.length > 0 && (
             <section>
-              <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-foreground/50">
+              <h2 className="mb-2.5 px-1 text-[13px] font-semibold uppercase tracking-wider text-foreground/45">
                 Earlier
               </h2>
-              <ul>{earlier.map(renderItem)}</ul>
+              <ul className="space-y-2">{earlier.map(renderItem)}</ul>
             </section>
           )}
         </>

@@ -36,8 +36,11 @@ async function Feed({ following }: { following: boolean }) {
       <div className="mx-auto max-w-xl py-16 text-center text-foreground/60">
         <p className="mb-2 text-lg font-medium text-foreground">Nothing here yet</p>
         <p className="mb-4 text-sm">Follow people to see their posts here.</p>
-        <Link href="/search" className="text-brand hover:underline">
-          Find people →
+        <Link
+          href="/search"
+          className="inline-block rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand/25 transition active:scale-95"
+        >
+          Find people
         </Link>
       </div>
     );
@@ -88,7 +91,6 @@ async function HomeBody({
               : "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.03]"
           }`}
         >
-          <span>✨</span>
           <span>For you</span>
         </Link>
         <Link
@@ -99,7 +101,6 @@ async function HomeBody({
               : "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.03]"
           }`}
         >
-          <span>👥</span>
           <span>Following</span>
         </Link>
       </div>
@@ -107,8 +108,23 @@ async function HomeBody({
       <Suspense
         key={following ? "following" : "all"}
         fallback={
-          <div className="py-20 text-center text-foreground/50">
-            Loading posts...
+          <div className="mx-auto max-w-xl space-y-8" aria-label="Loading posts">
+            {[0, 1].map((i) => (
+              <div
+                key={i}
+                className="glass-card animate-pulse overflow-hidden rounded-[28px]"
+              >
+                <div className="flex items-center gap-3 p-4">
+                  <div className="h-10 w-10 rounded-full bg-foreground/10" />
+                  <div className="space-y-2">
+                    <div className="h-3 w-28 rounded-full bg-foreground/10" />
+                    <div className="h-2.5 w-16 rounded-full bg-foreground/[0.07]" />
+                  </div>
+                </div>
+                <div className="aspect-square w-full bg-foreground/[0.06]" />
+                <div className="h-16" />
+              </div>
+            ))}
           </div>
         }
       >

@@ -182,8 +182,23 @@ export function ChatRoom({
           className="flex items-center gap-3 border-b px-4 py-3 backdrop-blur-md"
           style={{ background: t.panel, borderColor: t.border }}
         >
-          <Link href="/messages" aria-label="Back to messages" className="text-xl">
-            ←
+          <Link
+            href="/messages"
+            aria-label="Back to messages"
+            className="-ml-1 flex h-9 w-9 items-center justify-center rounded-full transition active:scale-90"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
           </Link>
           {other.avatarUrl ? (
             <Image
@@ -206,9 +221,24 @@ export function ChatRoom({
             type="button"
             onClick={() => setPickerOpen(true)}
             aria-label="Change chat theme"
-            className="text-xl"
+            className="flex h-9 w-9 items-center justify-center rounded-full transition active:scale-90"
+            style={{ color: t.accent }}
           >
-            🎨
+            <svg
+              viewBox="0 0 24 24"
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.9}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-.5-.2-.9-.5-1.3-.3-.4-.5-.8-.5-1.3 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-3.9-4-7.2-9-7.2Z" />
+              <circle cx="7.5" cy="11" r="1" fill="currentColor" />
+              <circle cx="10.5" cy="7.5" r="1" fill="currentColor" />
+              <circle cx="15" cy="7.5" r="1" fill="currentColor" />
+            </svg>
           </button>
         </header>
 
@@ -242,7 +272,7 @@ export function ChatRoom({
                 className={`flex ${mine ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className="max-w-[80%] rounded-2xl px-3 py-2 text-sm"
+                  className="max-w-[80%] rounded-[20px] px-3.5 py-2 text-[15px] leading-snug"
                   style={{
                     background: mine ? t.mine : t.theirs,
                     color: mine ? t.mineText : t.theirsText,
@@ -253,8 +283,18 @@ export function ChatRoom({
                       href={`/p/${reelMatch[1]}`}
                       className="block font-semibold hover:underline"
                     >
-                      ▶ Shared a post
-                      <span className="block text-xs font-normal opacity-80">
+                      <span className="flex items-center gap-2">
+                        <svg
+                          viewBox="0 0 24 24"
+                          className="h-4 w-4 shrink-0"
+                          fill="currentColor"
+                          aria-hidden="true"
+                        >
+                          <path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" />
+                        </svg>
+                        Shared a post
+                      </span>
+                      <span className="block pl-6 text-xs font-normal opacity-80">
                         Tap to open
                       </span>
                     </Link>
@@ -302,10 +342,23 @@ export function ChatRoom({
             <button
               type="submit"
               disabled={sending || !text.trim()}
-              className="px-2 text-sm font-semibold disabled:opacity-40"
-              style={{ color: t.accent }}
+              aria-label="Send message"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition active:scale-90 disabled:opacity-40"
+              style={{ background: t.accent, color: t.bg.startsWith("hsl") ? "#fff" : "#000" }}
             >
-              Send
+              <svg
+                viewBox="0 0 24 24"
+                className="h-[18px] w-[18px]"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.4}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 19V5" />
+                <path d="m5 12 7-7 7 7" />
+              </svg>
             </button>
           </div>
         </form>
