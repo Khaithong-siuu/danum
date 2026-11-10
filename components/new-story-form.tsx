@@ -110,8 +110,8 @@ export function NewStoryForm({
             className="absolute inset-0 cursor-pointer opacity-0"
           />
 
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-[20px] bg-gradient-to-br from-brand/20 to-brand/5 text-3xl ring-1 ring-brand/20 transition-transform group-hover:scale-105">
-            📸
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-[20px] bg-gradient-to-br from-brand/20 to-brand/5 text-brand ring-1 ring-brand/20 transition-transform group-hover:scale-105">
+            <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>
           </div>
 
           <p className="text-base font-semibold tracking-tight">
@@ -147,9 +147,9 @@ export function NewStoryForm({
             type="button"
             onClick={clearImage}
             aria-label="Remove photo"
-            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/40 text-sm text-white backdrop-blur-xl transition active:scale-90 hover:bg-black/60"
+            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white backdrop-blur-xl transition active:scale-90 hover:bg-black/60"
           >
-            ✕
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
           </button>
         </div>
       )}

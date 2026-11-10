@@ -36,7 +36,7 @@ function Art({ url, size }: { url: string | null; size: number }) {
       src={url}
       alt=""
       referrerPolicy="no-referrer"
-      className="shrink-0 rounded-md object-cover"
+      className="shrink-0 rounded-lg object-cover"
       style={{ width: size, height: size }}
     />
   ) : (
@@ -328,7 +328,8 @@ export function ListenTogether({
             className="flex w-full items-center justify-center gap-2 py-0.5 text-sm font-medium"
             style={{ color: theme.accent }}
           >
-            🎧 Listen together
+            <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 14v-2a9 9 0 0 1 18 0v2" /><path d="M21 15a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2zM3 15a2 2 0 0 0 2 2h1v-5H5a2 2 0 0 0-2 2z" /></svg>
+            Listen together
           </button>
         ) : (
           <div className="space-y-1">
@@ -356,10 +357,14 @@ export function ListenTogether({
                   type="button"
                   onClick={() => void togglePlay()}
                   aria-label={session.isPlaying ? "Pause" : "Play"}
-                  className="shrink-0 px-2 text-xl"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition active:scale-90"
                   style={{ color: theme.accent }}
                 >
-                  {session.isPlaying ? "❚❚" : "▶"}
+                  {session.isPlaying ? (
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2" /><rect x="14" y="5" width="4" height="14" rx="1.2" /></svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" className="ml-0.5 h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" /></svg>
+                  )}
                 </button>
               )}
 

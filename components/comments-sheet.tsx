@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Sheet } from "@/components/sheet";
 import { ReportSheet } from "@/components/report-sheet";
+import { EmojiText } from "@/components/emoji-text";
 import { timeAgo } from "@/lib/time";
 import {
   COMMENT_IMAGE_MAX_BYTES,
@@ -77,7 +78,9 @@ function CommentRow({
           ) : (
             <span className="mr-2 font-semibold">Deleted user</span>
           )}
-          <span className="whitespace-pre-wrap break-words">{c.content}</span>
+          <span className="whitespace-pre-wrap break-words">
+            <EmojiText text={c.content} />
+          </span>
         </p>
 
         {c.imageUrl && (
@@ -349,8 +352,9 @@ export function CommentsSheet({
                     setText("");
                   }}
                   aria-label="Cancel reply"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground/[0.07]"
                 >
-                  ✕
+                  <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
                 </button>
               </div>
             )}
@@ -367,9 +371,9 @@ export function CommentsSheet({
                   type="button"
                   onClick={clearImage}
                   aria-label="Remove image"
-                  className="absolute -right-2 -top-2 h-5 w-5 rounded-full bg-foreground text-xs text-background"
+                  className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-foreground text-background"
                 >
-                  ✕
+                  <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
                 </button>
               </div>
             )}
@@ -388,9 +392,9 @@ export function CommentsSheet({
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 aria-label="Add a photo"
-                className="text-xl"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-foreground/60 transition hover:bg-foreground/[0.06] active:scale-90"
               >
-                📷
+                <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>
               </button>
               <input
                 ref={inputRef}

@@ -211,7 +211,7 @@ export function StoryViewer({
                 <button
                   type="button"
                   onClick={askDelete}
-                  className="text-sm font-medium text-red-400 hover:text-red-300"
+                  className="rounded-full border border-white/15 bg-white/15 px-3 py-1 text-sm font-medium text-red-300 backdrop-blur-md transition active:scale-95"
                 >
                   Delete
                 </button>
@@ -219,9 +219,9 @@ export function StoryViewer({
               <Link
                 href="/"
                 aria-label="Close stories"
-                className="text-2xl leading-none text-white"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/15 text-white backdrop-blur-md transition active:scale-90"
               >
-                ×
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
               </Link>
             </div>
           </div>

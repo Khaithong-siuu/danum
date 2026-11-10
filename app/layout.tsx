@@ -6,6 +6,8 @@ import { getMySuspension } from "@/lib/suspension";
 import { SuspendedNotice } from "@/components/suspended-notice";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Danum",
   description: "Share your moments!",

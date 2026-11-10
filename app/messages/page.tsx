@@ -61,7 +61,7 @@ async function startChat(formData: FormData) {
     fail("Could not start the chat. Please try again.");
   }
 
-  redirect(`/messages/${conversationId}`);
+  redirect(`/messages/chat?id=${conversationId}`);
 }
 
 type InboxItem = {
@@ -203,7 +203,7 @@ async function InboxContent({
             return (
               <li key={item.id}>
                 <Link
-                  href={`/messages/${item.id}`}
+                  href={`/messages/chat?id=${item.id}`}
                   className="flex items-center gap-3 py-3 px-2 rounded-2xl transition hover:bg-foreground/[0.04] active:scale-[0.99]"
                 >
                   {avatar ? (
