@@ -7,6 +7,7 @@ import { isStorageImageUrl } from "@/lib/safe-url";
 import { timeAgo } from "@/lib/time";
 import { REPORT_REASONS } from "@/lib/safety";
 import { AdminReportActions } from "@/components/admin-report-actions";
+import { BackLink, PageTitle } from "@/components/page-chrome";
 
 type ReportRow = {
   id: number;
@@ -123,17 +124,15 @@ async function ReportsContent({
   const nameOf = (id: string) => profiles.get(id)?.username ?? "unknown";
 
   const tabClass = (active: boolean) =>
-    `rounded-lg py-2 ${active ? "bg-background shadow-sm" : "text-foreground/60"}`;
+    `rounded-[14px] py-2 ${active ? "bg-background shadow-sm ring-1 ring-foreground/[0.06]" : "text-foreground/60"}`;
 
   return (
     <div className="mx-auto max-w-2xl p-6">
-      <Link href="/" className="text-sm text-foreground/60 hover:text-foreground">
-        ← Back to feed
-      </Link>
+      <BackLink href="/">Feed</BackLink>
 
-      <h1 className="mb-4 mt-4 text-3xl font-bold">Reports</h1>
+      <PageTitle>Reports</PageTitle>
 
-      <div className="mb-6 grid grid-cols-2 rounded-xl bg-foreground/10 p-1 text-center text-sm font-medium">
+      <div className="mb-6 grid grid-cols-2 rounded-2xl bg-foreground/[0.06] p-1 text-center text-sm font-medium">
         <Link href="/admin/reports" className={tabClass(!done)}>
           Open
         </Link>
@@ -144,7 +143,7 @@ async function ReportsContent({
 
       {groups.length === 0 ? (
         <p className="py-16 text-center text-foreground/60">
-          {done ? "Nothing resolved yet." : "No open reports. 🎉"}
+          {done ? "Nothing resolved yet." : "No open reports."}
         </p>
       ) : (
         <ul className="space-y-4">

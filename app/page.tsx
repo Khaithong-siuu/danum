@@ -23,6 +23,8 @@ import {
   getComments,
   toggleCommentLike,
 } from "@/app/actions/comments";
+import { PageLoading } from "@/components/page-chrome";
+import { SiteLogo } from "@/components/site-logo";
 
 async function Feed({ following }: { following: boolean }) {
   const data = await loadFeed({ followingOnly: following });
@@ -33,8 +35,24 @@ async function Feed({ following }: { following: boolean }) {
 
   if (following && data.posts.length === 0) {
     return (
-      <div className="mx-auto max-w-xl py-16 text-center text-foreground/60">
-        <p className="mb-2 text-lg font-medium text-foreground">Nothing here yet</p>
+      <div className="mx-auto flex max-w-xl flex-col items-center py-16 text-center text-foreground/60">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand/10 text-brand ring-1 ring-brand/20">
+          <svg
+            viewBox="0 0 24 24"
+            className="h-8 w-8"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.6}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="9" cy="8" r="3.5" />
+            <path d="M2.5 20c0-3.6 2.9-5.5 6.5-5.5s6.5 1.9 6.5 5.5" />
+            <path d="M18 8v6M15 11h6" />
+          </svg>
+        </div>
+        <p className="mb-1 text-lg font-semibold text-foreground">Nothing here yet</p>
         <p className="mb-4 text-sm">Follow people to see their posts here.</p>
         <Link
           href="/search"
@@ -75,30 +93,30 @@ async function HomeBody({
   const following = tab === "following";
 
   return (
-    <div className="px-4 pb-20 pt-6 md:pb-6">
+    <div className="px-4 pb-32 pt-6 md:pb-6">
       <div className="mx-auto mb-5 max-w-xl">
         <Suspense fallback={<div className="h-[92px]" />}>
           <StoriesBar />
         </Suspense>
       </div>
 
-      <div className="mx-auto mb-6 grid max-w-xl grid-cols-2 rounded-2xl border border-foreground/[0.06] bg-foreground/[0.03] p-1.5 text-center text-sm font-semibold backdrop-blur-lg">
+      <div className="mx-auto mb-6 grid max-w-xl grid-cols-2 rounded-2xl bg-foreground/[0.06] p-1 text-center text-sm font-semibold">
         <Link
           href="/"
-          className={`flex items-center justify-center gap-2 rounded-xl py-2.5 transition-all duration-200 ${
+          className={`flex items-center justify-center gap-2 rounded-[14px] py-2 transition-all duration-200 ${
             !following
-              ? "bg-background text-foreground shadow-sm shadow-foreground/5 border border-foreground/10"
-              : "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.03]"
+              ? "bg-background text-foreground shadow-sm ring-1 ring-foreground/[0.06]"
+              : "text-foreground/55 hover:text-foreground"
           }`}
         >
           <span>For you</span>
         </Link>
         <Link
           href="/?tab=following"
-          className={`flex items-center justify-center gap-2 rounded-xl py-2.5 transition-all duration-200 ${
+          className={`flex items-center justify-center gap-2 rounded-[14px] py-2 transition-all duration-200 ${
             following
-              ? "bg-background text-foreground shadow-sm shadow-foreground/5 border border-foreground/10"
-              : "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.03]"
+              ? "bg-background text-foreground shadow-sm ring-1 ring-foreground/[0.06]"
+              : "text-foreground/55 hover:text-foreground"
           }`}
         >
           <span>Following</span>
@@ -141,11 +159,9 @@ export default function Home({
 }) {
   return (
     <main className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-40 border-b glass-bar pt-[env(safe-area-inset-top)] shadow-sm">
+      <nav className="sticky top-0 z-40 border-b glass-bar pt-[env(safe-area-inset-top)]">
         <div className="mx-auto flex h-14 max-w-xl items-center justify-between px-4">
-          <Link href="/" className="text-2xl font-bold tracking-tight text-foreground">
-            Danum
-          </Link>
+          <SiteLogo />
 
           <div className="flex items-center gap-1">
             {/* On a phone these live in the bottom tab bar */}
@@ -166,7 +182,7 @@ export default function Home({
         </div>
       </nav>
 
-      <Suspense fallback={<div className="py-20 text-center text-foreground/50">Loading...</div>}>
+      <Suspense fallback={<PageLoading />}>
         <HomeBody searchParams={searchParams} />
       </Suspense>
 

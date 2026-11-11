@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isStorageImageUrl } from "@/lib/safe-url";
 import { timeAgo } from "@/lib/time";
 import { AdminUserActions } from "@/components/admin-user-actions";
+import { BackLink, PageTitle } from "@/components/page-chrome";
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -229,16 +230,17 @@ async function UsersContent({
 
   return (
     <div className="mx-auto max-w-2xl p-6">
-      <div className="flex gap-4 text-sm text-foreground/60">
-        <Link href="/" className="hover:text-foreground">
-          ← Feed
-        </Link>
-        <Link href="/admin/reports" className="hover:text-foreground">
+      <div className="flex items-center justify-between">
+        <BackLink href="/">Feed</BackLink>
+        <Link
+          href="/admin/reports"
+          className="text-[15px] font-medium text-brand transition active:opacity-60"
+        >
           Reports
         </Link>
       </div>
 
-      <h1 className="mb-4 mt-4 text-3xl font-bold">Accounts</h1>
+      <PageTitle>Accounts</PageTitle>
 
       <form action="/admin/users" method="get" className="mb-8 flex gap-2">
         <input

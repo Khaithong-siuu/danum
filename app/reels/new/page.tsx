@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { revalidatePath } from "next/cache";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getTrack, searchTracks, type Track } from "@/lib/music";
 import {
@@ -12,6 +11,7 @@ import {
   isOwnReelPath,
 } from "@/lib/reels";
 import { NewReelForm } from "@/components/new-reel-form";
+import { BackLink, PageTitle } from "@/components/page-chrome";
 
 const VIDEO_EXTENSIONS = new Set(["mp4", "mov", "webm"]);
 const PHOTO_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
@@ -150,14 +150,9 @@ async function NewPostContent() {
 
   return (
     <div className="mx-auto mt-6 max-w-md p-6">
-      <Link
-        href="/"
-        className="text-sm text-foreground/60 hover:text-foreground"
-      >
-        ← Back to feed
-      </Link>
+      <BackLink href="/">Feed</BackLink>
 
-      <h1 className="mb-6 mt-4 text-3xl font-bold">New post</h1>
+      <PageTitle>New post</PageTitle>
 
       <NewReelForm
         userId={user.id}

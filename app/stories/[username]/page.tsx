@@ -120,7 +120,10 @@ async function StoryContent({
         <p className="text-sm text-foreground/60">
           {profile.username} hasn&apos;t posted a story in the last 24 hours.
         </p>
-        <Link href="/" className="text-brand hover:underline">
+        <Link
+          href="/"
+          className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand/25 transition active:scale-95"
+        >
           Back to feed
         </Link>
       </div>

@@ -17,6 +17,7 @@ import {
   getComments,
   toggleCommentLike,
 } from "@/app/actions/comments";
+import { PageLoading } from "@/components/page-chrome";
 
 async function PostContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -62,17 +63,28 @@ export default function PostPage({
           <Link
             href="/"
             aria-label="Back to feed"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground/[0.05] hover:bg-foreground/[0.1] active:scale-95 transition-all text-base"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground/[0.06] transition-all hover:bg-foreground/[0.1] active:scale-90"
           >
-            ←
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
           </Link>
-          <span className="text-lg font-semibold">Post</span>
+          <span className="text-[17px] font-semibold tracking-tight">Post</span>
         </div>
       </nav>
 
       <div className="px-4 pt-6">
         <Suspense
-          fallback={<div className="py-20 text-center text-foreground/50">Loading...</div>}
+          fallback={<PageLoading />}
         >
           <PostContent params={params} />
         </Suspense>

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isStorageImageUrl } from "@/lib/safe-url";
 import { FollowButton } from "@/components/follow-button";
 import { toggleFollow } from "@/app/actions/follows";
+import { BackLink, PageLoading, PageTitle, SectionLabel } from "@/components/page-chrome";
 
 async function SearchContent({
   searchParams,
@@ -63,11 +64,9 @@ async function SearchContent({
 
   return (
     <div className="mx-auto mt-6 max-w-md p-6">
-      <Link href="/" className="text-sm text-foreground/60 hover:text-foreground">
-        ← Back to feed
-      </Link>
+      <BackLink href="/">Feed</BackLink>
 
-      <h1 className="mb-4 mt-4 text-3xl font-bold">Find people</h1>
+      <PageTitle>Find people</PageTitle>
 
       <form action="/search" method="get" className="mb-6 flex gap-2">
         <input
@@ -86,21 +85,19 @@ async function SearchContent({
         </button>
       </form>
 
-      <p className="mb-2 text-xs font-medium uppercase tracking-wide text-foreground/50">
-        {term ? "Results" : "People on Danum"}
-      </p>
+      <SectionLabel>{term ? "Results" : "People on Danum"}</SectionLabel>
 
       {people.length === 0 ? (
         <p className="py-12 text-center text-foreground/60">
           {term ? "No one found with that username." : "No one else is here yet."}
         </p>
       ) : (
-        <ul className="divide-y divide-foreground/10">
+        <ul className="glass-card divide-y divide-foreground/[0.06] overflow-hidden rounded-[22px]">
           {people.map((p) => {
             const avatar = isStorageImageUrl(p.avatar_url) ? p.avatar_url : null;
 
             return (
-              <li key={p.id} className="flex items-center gap-3 py-3">
+              <li key={p.id} className="flex items-center gap-3 px-4 py-3">
                 <Link
                   href={`/u/${p.username}`}
                   className="flex min-w-0 flex-1 items-center gap-3"
@@ -111,7 +108,7 @@ async function SearchContent({
                       alt=""
                       width={44}
                       height={44}
-                      className="h-11 w-11 shrink-0 rounded-full object-cover"
+                      className="h-11 w-11 shrink-0 rounded-full object-cover ring-1 ring-foreground/10"
                     />
                   ) : (
                     <div className="h-11 w-11 shrink-0 rounded-full bg-foreground/10" />
@@ -147,7 +144,7 @@ export default function SearchPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   return (
-    <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
+    <Suspense fallback={<PageLoading />}>
       <SearchContent searchParams={searchParams} />
     </Suspense>
   );

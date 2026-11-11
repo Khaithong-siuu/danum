@@ -13,10 +13,10 @@ function Art({ url }: { url: string | null }) {
       src={url}
       alt=""
       referrerPolicy="no-referrer"
-      className="h-10 w-10 shrink-0 rounded-md object-cover"
+      className="h-10 w-10 shrink-0 rounded-lg object-cover"
     />
   ) : (
-    <div className="h-10 w-10 shrink-0 rounded-md bg-foreground/10" />
+    <div className="h-10 w-10 shrink-0 rounded-lg bg-foreground/10" />
   );
 }
 
@@ -147,11 +147,13 @@ export function MusicPicker({
   }
 
   return (
-    <div className="space-y-3 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] p-4 backdrop-blur-md">
+    <div className="glass-card space-y-3 rounded-[22px] p-4">
       <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={stop} />
 
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium">♪ Music (optional)</p>
+        <p className="text-sm font-semibold">
+          Music <span className="font-normal text-foreground/45">(optional)</span>
+        </p>
         {value && (
           <button
             type="button"
@@ -217,7 +219,19 @@ export function MusicPicker({
             onClick={playClip}
             className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.05] hover:bg-foreground/[0.09] active:scale-[0.98] py-2.5 text-sm font-medium transition-all backdrop-blur-sm"
           >
-            {playingKey === "clip" ? "■ Stop preview" : "▶ Preview clip"}
+            <span className="inline-flex items-center justify-center gap-2">
+              {playingKey === "clip" ? (
+                <>
+                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5" /></svg>
+                  Stop preview
+                </>
+              ) : (
+                <>
+                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" /></svg>
+                  Preview clip
+                </>
+              )}
+            </span>
           </button>
         </div>
       )}
@@ -276,8 +290,12 @@ export function MusicPicker({
                     className="relative shrink-0"
                   >
                     <Art url={t.artworkUrl} />
-                    <span className="absolute inset-0 flex items-center justify-center rounded-md bg-black/40 text-xs text-white">
-                      {playingKey === `row:${t.id}` ? "■" : "▶"}
+                    <span className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 text-white">
+                      {playingKey === `row:${t.id}` ? (
+                        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5" /></svg>
+                      ) : (
+                        <svg viewBox="0 0 24 24" className="ml-px h-3.5 w-3.5" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" /></svg>
+                      )}
                     </span>
                   </button>
 

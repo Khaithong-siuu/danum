@@ -23,17 +23,29 @@ export function SuspendedNotice({
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-6">
       <div className="w-full max-w-sm text-center">
-        <p className="mb-3 text-4xl" aria-hidden="true">
-          ⛔
-        </p>
-        <h1 className="mb-2 text-2xl font-bold">Your account is suspended</h1>
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10 text-red-500">
+          <svg
+            viewBox="0 0 24 24"
+            className="h-8 w-8"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <path d="m5.6 5.6 12.8 12.8" />
+          </svg>
+        </div>
+        <h1 className="mb-2 text-2xl font-bold tracking-tight">Your account is suspended</h1>
 
         <p className="mb-4 text-sm text-foreground/70">
           You can&apos;t post, comment or message while your account is suspended,
           and other people can&apos;t see your profile.
         </p>
 
-        <div className="mb-4 rounded-xl border border-foreground/10 p-4 text-left text-sm">
+        <div className="glass-card mb-4 rounded-[22px] p-4 text-left text-sm">
           <p className="mb-1 text-xs font-medium uppercase tracking-wide text-foreground/50">
             Reason
           </p>

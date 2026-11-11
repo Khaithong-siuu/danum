@@ -22,15 +22,16 @@ const TABS: {
   { href: "/profile", name: "user", label: "Profile", match: (p) => p.startsWith("/profile") },
 ];
 
+/** A floating glass bar, like the one on iPhone. */
 export function TabBar() {
   const pathname = usePathname();
 
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-40 border-t glass-bar pb-[env(safe-area-inset-bottom)] shadow-[0_-1px_12px_-3px_hsl(var(--foreground)/0.06)] md:hidden"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-6 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] md:hidden"
     >
-      <div className="mx-auto grid h-14 max-w-xl grid-cols-5 items-center">
+      <div className="glass-surface pointer-events-auto flex w-full max-w-xs items-center justify-between rounded-full border border-foreground/[0.08] p-1.5 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.35)]">
         {TABS.map((tab) => {
           const active = tab.match(pathname);
           const isNew = tab.name === "plus";
@@ -41,22 +42,21 @@ export function TabBar() {
               href={tab.href}
               aria-label={tab.label}
               aria-current={active ? "page" : undefined}
-              className={`relative flex h-full flex-col items-center justify-center transition-all active:scale-90 ${
-                active ? "text-brand" : "text-foreground/50 hover:text-foreground/80"
+              className={`flex items-center justify-center rounded-full transition-all duration-200 active:scale-90 ${
+                isNew
+                  ? "h-11 w-14 bg-gradient-to-tr from-brand to-fuchsia-500 text-white shadow-md shadow-brand/30"
+                  : `h-11 w-11 ${
+                      active
+                        ? "bg-brand/15 text-brand"
+                        : "text-foreground/50 hover:text-foreground/80"
+                    }`
               }`}
             >
-              {isNew ? (
-                <span className="flex h-9 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand to-pink-500 text-white shadow-md shadow-brand/30 transition-transform hover:scale-105 active:scale-95">
-                  <Icon name="plus" className="h-5 w-5" strokeWidth={2.6} />
-                </span>
-              ) : (
-                <>
-                  <Icon name={tab.name} strokeWidth={active ? 2.4 : 1.8} />
-                  {active && (
-                    <span className="absolute bottom-1.5 h-1 w-1 rounded-full bg-brand animate-pulse" />
-                  )}
-                </>
-              )}
+              <Icon
+                name={tab.name}
+                className={isNew ? "h-5 w-5" : "h-6 w-6"}
+                strokeWidth={isNew ? 2.6 : active ? 2.3 : 1.8}
+              />
             </Link>
           );
         })}

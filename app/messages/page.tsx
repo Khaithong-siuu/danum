@@ -5,6 +5,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { isStorageImageUrl } from "@/lib/safe-url";
 import { timeAgo } from "@/lib/time";
+import { BackLink, PageLoading, PageTitle } from "@/components/page-chrome";
 
 function fail(message: string): never {
   redirect(`/messages?error=${encodeURIComponent(message)}`);
@@ -61,7 +62,7 @@ async function startChat(formData: FormData) {
     fail("Could not start the chat. Please try again.");
   }
 
-  redirect(`/messages/chat?id=${conversationId}`);
+  redirect(`/messages/${conversationId}`);
 }
 
 type InboxItem = {
@@ -160,14 +161,12 @@ async function InboxContent({
 
   return (
     <div className="max-w-md mx-auto mt-6 p-6">
-      <Link href="/" className="text-sm text-foreground/60 hover:text-foreground">
-        ← Back to feed
-      </Link>
+      <BackLink href="/">Feed</BackLink>
 
-      <h1 className="text-3xl font-bold mt-4 mb-6">Messages</h1>
+      <PageTitle>Messages</PageTitle>
 
       {error && (
-        <div className="mb-4 rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-600">
+        <div className="mb-4 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600">
           {error}
         </div>
       )}
@@ -194,7 +193,7 @@ async function InboxContent({
           No conversations yet. Enter a username above to start one.
         </p>
       ) : (
-        <ul className="divide-y divide-foreground/10">
+        <ul className="glass-card divide-y divide-foreground/[0.06] overflow-hidden rounded-[22px]">
           {items.map((item) => {
             const avatar = isStorageImageUrl(item.profile.avatar_url)
               ? item.profile.avatar_url
@@ -203,8 +202,8 @@ async function InboxContent({
             return (
               <li key={item.id}>
                 <Link
-                  href={`/messages/chat?id=${item.id}`}
-                  className="flex items-center gap-3 py-3 px-2 rounded-2xl transition hover:bg-foreground/[0.04] active:scale-[0.99]"
+                  href={`/messages/${item.id}`}
+                  className="flex items-center gap-3 px-4 py-3 transition hover:bg-foreground/[0.04] active:bg-foreground/[0.07]"
                 >
                   {avatar ? (
                     <Image
@@ -212,7 +211,7 @@ async function InboxContent({
                       alt=""
                       width={48}
                       height={48}
-                      className="h-12 w-12 rounded-full object-cover"
+                      className="h-12 w-12 rounded-full object-cover ring-1 ring-foreground/10"
                     />
                   ) : (
                     <div className="h-12 w-12 rounded-full bg-foreground/10" />
@@ -261,7 +260,7 @@ export default function MessagesPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   return (
-    <Suspense fallback={<div className="p-10 text-center">Loading messages...</div>}>
+    <Suspense fallback={<PageLoading />}>
       <InboxContent searchParams={searchParams} />
     </Suspense>
   );

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isStorageImageUrl } from "@/lib/safe-url";
 import { FollowButton } from "@/components/follow-button";
 import { toggleFollow } from "@/app/actions/follows";
+import { BackLink } from "@/components/page-chrome";
 
 async function FollowsContent({
   params,
@@ -98,26 +99,21 @@ async function FollowsContent({
 
   return (
     <div className="mx-auto mt-6 max-w-md p-6">
-      <Link
-        href={`/u/${profile.username}`}
-        className="text-sm text-foreground/60 hover:text-foreground"
-      >
-        ← {profile.username}
-      </Link>
+      <BackLink href={`/u/${profile.username}`}>{profile.username}</BackLink>
 
-      <div className="mb-4 mt-4 grid grid-cols-2 rounded-xl bg-foreground/10 p-1 text-center text-sm font-medium">
+      <div className="mb-4 mt-4 grid grid-cols-2 rounded-2xl bg-foreground/[0.06] p-1 text-center text-sm font-medium">
         <Link
           href={`${base}?tab=followers`}
-          className={`rounded-lg py-2 ${
-            active === "followers" ? "bg-background shadow-sm" : "text-foreground/60"
+          className={`rounded-[14px] py-2 ${
+            active === "followers" ? "bg-background shadow-sm ring-1 ring-foreground/[0.06]" : "text-foreground/60"
           }`}
         >
           Followers
         </Link>
         <Link
           href={`${base}?tab=following`}
-          className={`rounded-lg py-2 ${
-            active === "following" ? "bg-background shadow-sm" : "text-foreground/60"
+          className={`rounded-[14px] py-2 ${
+            active === "following" ? "bg-background shadow-sm ring-1 ring-foreground/[0.06]" : "text-foreground/60"
           }`}
         >
           Following

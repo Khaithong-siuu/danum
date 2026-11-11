@@ -42,6 +42,9 @@ export default {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        // The accent color. Needed so bg-brand/10, ring-brand/25, shadow-brand/30,
+        // from-brand, accent-brand and the other opacity variants actually generate.
+        brand: "hsl(var(--brand) / <alpha-value>)",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

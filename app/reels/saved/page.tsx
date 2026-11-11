@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { isStorageImageUrl } from "@/lib/safe-url";
+import { BackLink, PageLoading, PageTitle } from "@/components/page-chrome";
 
 async function SavedContent() {
   const supabase = await createClient();
@@ -37,26 +38,21 @@ async function SavedContent() {
 
   return (
     <div className="mx-auto mt-6 max-w-md p-6">
-      <Link
-        href="/reels"
-        className="text-sm text-foreground/60 hover:text-foreground"
-      >
-        ← Back to reels
-      </Link>
+      <BackLink href="/reels">Reels</BackLink>
 
-      <h1 className="mb-6 mt-4 text-3xl font-bold">Saved</h1>
+      <PageTitle>Saved</PageTitle>
 
       {items.length === 0 ? (
         <p className="py-16 text-center text-foreground/60">
           Nothing saved yet. Tap the bookmark on a post to keep it here.
         </p>
       ) : (
-        <div className="grid grid-cols-3 gap-1">
+        <div className="grid grid-cols-3 gap-1.5">
           {items.map((r) => (
             <Link
               key={r.id}
               href={`/p/${r.id}`}
-              className="relative aspect-[9/16] overflow-hidden bg-foreground/10"
+              className="relative aspect-[9/16] overflow-hidden rounded-xl bg-foreground/10 transition active:scale-[0.97]"
             >
               {r.kind === "photo" ? (
                 <Image
@@ -75,8 +71,15 @@ async function SavedContent() {
                     playsInline
                     className="h-full w-full object-cover"
                   />
-                  <span className="absolute bottom-1 right-1 rounded bg-black/60 px-1 text-[10px] text-white">
-                    ▶
+                  <span className="absolute bottom-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-md">
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="ml-px h-2.5 w-2.5"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" />
+                    </svg>
                   </span>
                 </>
               )}
@@ -90,7 +93,7 @@ async function SavedContent() {
 
 export default function SavedPage() {
   return (
-    <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
+    <Suspense fallback={<PageLoading />}>
       <SavedContent />
     </Suspense>
   );

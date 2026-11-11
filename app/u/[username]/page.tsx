@@ -4,11 +4,11 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { buildThemeCss, isHexColor } from "@/lib/pfp-theme";
 import { isStorageImageUrl } from "@/lib/safe-url";
-import { fadeGradient, imageStyle, normalizeAdjust } from "@/lib/theme-image";
-import { formatCount } from "@/lib/reels";
+import { imageStyle, normalizeAdjust } from "@/lib/theme-image";
 import { FollowButton } from "@/components/follow-button";
 import { ProfileActions } from "@/components/profile-actions";
-import { EmojiText } from "@/components/emoji-text";
+import { ProfileHero } from "@/components/profile-hero";
+import { SiteLogo } from "@/components/site-logo";
 import { toggleFollow } from "@/app/actions/follows";
 
 export default async function PublicProfilePage({
@@ -151,133 +151,61 @@ export default async function PublicProfilePage({
     >
       {themed && <style dangerouslySetInnerHTML={{ __html: themeCss }} />}
 
-      <nav className="sticky top-0 z-50 border-b glass-bar shadow-sm">
+      <nav className="sticky top-0 z-50 border-b glass-bar">
         <div className="mx-auto flex h-14 max-w-xl items-center px-4">
-          <Link href="/" className="text-2xl font-bold tracking-tight">
-            Danum
-          </Link>
+          <SiteLogo />
         </div>
       </nav>
 
       <div className="mx-auto max-w-xl px-4 py-8">
-        <section className="mb-8">
-          {/* Cover image that fades into the page background */}
-          {coverUrl && (
-            <div className="relative h-44 overflow-hidden rounded-2xl">
-              <Image
-                src={coverUrl}
-                alt=""
-                fill
-                priority
-                className="object-cover"
-                style={imageStyle(adjust)}
-                sizes="(max-width: 640px) 100vw, 576px"
-              />
-              <div
-                className="absolute inset-0"
-                style={{ backgroundImage: fadeGradient(adjust) }}
-              />
-            </div>
-          )}
-
-          <div
-            className={`flex items-start gap-5 rounded-2xl p-5 ${
-              coverUrl ? "relative -mt-14" : ""
-            }`}
-            style={
-              themed && !coverUrl
-                ? {
-                    backgroundImage:
-                      "linear-gradient(to bottom, hsl(var(--brand) / 0.18), transparent)",
-                  }
-                : undefined
-            }
+        <div className="mb-8">
+          <ProfileHero
+            username={profile.username}
+            fullName={profile.full_name}
+            bio={profile.bio}
+            website={profile.website}
+            avatarUrl={avatarUrl}
+            coverUrl={coverUrl}
+            coverStyle={imageStyle(adjust)}
+            stats={[
+              { label: "Posts", value: postsCountRes.count ?? 0 },
+              {
+                label: "Followers",
+                value: followersRes.count ?? 0,
+                href: followersHref,
+              },
+              {
+                label: "Following",
+                value: followingRes.count ?? 0,
+                href: followingHref,
+              },
+            ]}
           >
-            {avatarUrl ? (
-              <Image
-                src={avatarUrl}
-                alt={`${profile.username} avatar`}
-                width={88}
-                height={88}
-                className="h-[88px] w-[88px] shrink-0 rounded-full object-cover"
-                style={
-                  themed
-                    ? {
-                        boxShadow:
-                          "0 0 0 3px hsl(var(--background)), 0 0 0 6px hsl(var(--brand))",
-                      }
-                    : undefined
-                }
-              />
-            ) : (
-              <div className="h-[88px] w-[88px] shrink-0 rounded-full bg-foreground/10" />
-            )}
-
-            <div className="min-w-0 flex-1">
-              <h1 className="text-xl font-bold">{profile.username}</h1>
-              {profile.full_name && (
-                <p className="text-sm text-foreground/70">{profile.full_name}</p>
-              )}
-
-              <div className="mt-2 flex gap-5 text-sm">
-                <span>
-                  <strong>{formatCount(postsCountRes.count ?? 0)}</strong>{" "}
-                  <span className="text-foreground/60">posts</span>
-                </span>
-                <Link href={followersHref} className="hover:underline">
-                  <strong>{formatCount(followersRes.count ?? 0)}</strong>{" "}
-                  <span className="text-foreground/60">followers</span>
-                </Link>
-                <Link href={followingHref} className="hover:underline">
-                  <strong>{formatCount(followingRes.count ?? 0)}</strong>{" "}
-                  <span className="text-foreground/60">following</span>
-                </Link>
-              </div>
-
-              {profile.bio && (
-                <p className="mt-2 whitespace-pre-wrap text-sm">
-                  <EmojiText text={profile.bio} />
-                </p>
-              )}
-              {profile.website && (
-                <a
-                  href={profile.website}
-                  target="_blank"
-                  rel="noopener noreferrer nofollow"
-                  className="mt-1 block truncate text-sm text-brand hover:underline"
-                >
-                  {profile.website.replace(/^https?:\/\//, "")}
-                </a>
-              )}
-
-              <div className="mt-3 flex items-center gap-2">
-                {isOwner ? (
-                  <Link
-                    href="/profile"
-                    className="inline-block rounded-full border border-foreground/[0.08] bg-foreground/[0.05] hover:bg-foreground/[0.09] active:scale-95 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm transition-all"
-                  >
-                    Edit profile
-                  </Link>
-                ) : user ? (
-                  <>
-                    {!iBlocked && (
-                      <FollowButton
-                        targetId={profile.id}
-                        initialFollowing={isFollowing}
-                        toggleFollow={toggleFollow}
-                      />
-                    )}
-                    <ProfileActions
-                      targetId={profile.id}
-                      username={profile.username}
-                      initiallyBlocked={iBlocked}
-                    />
-                  </>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </section>
+            {isOwner ? (
+              <Link
+                href="/profile"
+                className="rounded-full bg-foreground/[0.07] px-5 py-2 text-sm font-semibold transition hover:bg-foreground/[0.12] active:scale-95"
+              >
+                Edit profile
+              </Link>
+            ) : user ? (
+              <>
+                {!iBlocked && (
+                  <FollowButton
+                    targetId={profile.id}
+                    initialFollowing={isFollowing}
+                    toggleFollow={toggleFollow}
+                  />
+                )}
+                <ProfileActions
+                  targetId={profile.id}
+                  username={profile.username}
+                  initiallyBlocked={iBlocked}
+                />
+              </>
+            ) : null}
+          </ProfileHero>
+        </div>
 
         {iBlocked ? (
           <p className="py-16 text-center text-foreground/60">
@@ -287,12 +215,12 @@ export default async function PublicProfilePage({
         ) : posts.length === 0 ? (
           <p className="py-16 text-center text-foreground/60">No posts yet</p>
         ) : (
-          <div className="grid grid-cols-3 gap-1">
+          <div className="grid grid-cols-3 gap-1.5">
             {posts.map((post) => (
               <Link
                 key={post.id}
                 href={`/p/${post.id}`}
-                className="relative aspect-square overflow-hidden bg-foreground/5"
+                className="relative aspect-square overflow-hidden rounded-xl bg-foreground/5 transition active:scale-[0.97]"
               >
                 {post.kind === "video" ? (
                   <video
@@ -313,8 +241,32 @@ export default async function PublicProfilePage({
                 )}
 
                 {(post.kind === "video" || multi.has(post.id)) && (
-                  <span className="absolute right-1 top-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
-                    {multi.has(post.id) ? "⧉" : "▶"}
+                  <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-md">
+                    {multi.has(post.id) ? (
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-3 w-3"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="m12 2 10 5-10 5L2 7l10-5Z" />
+                        <path d="m2 17 10 5 10-5" />
+                        <path d="m2 12 10 5 10-5" />
+                      </svg>
+                    ) : (
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="ml-px h-2.5 w-2.5"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" />
+                      </svg>
+                    )}
                   </span>
                 )}
               </Link>

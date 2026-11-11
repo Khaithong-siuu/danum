@@ -61,7 +61,7 @@ export function UserMenu({
         onClick={() => setOpen((o) => !o)}
         aria-label="Account menu"
         aria-expanded={open}
-        className="ml-1 flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-foreground/10 text-sm font-semibold ring-1 ring-foreground/10 transition active:scale-95"
+        className="ml-1 flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-foreground/10 text-sm font-semibold ring-2 ring-brand/30 transition hover:ring-brand/60 active:scale-95"
       >
         {avatarUrl ? (
           <Image

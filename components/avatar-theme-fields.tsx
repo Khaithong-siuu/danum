@@ -45,7 +45,7 @@ function SliderRow({
         max={max}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full"
+        className="w-full accent-brand"
       />
     </label>
   );
@@ -209,14 +209,14 @@ export function AvatarThemeFields({
   return (
     <div className="space-y-5">
       {/* Profile picture */}
-      <div>
-        <label className="block text-sm font-medium mb-1">Profile Picture</label>
+      <div className="glass-card rounded-[22px] p-4">
+        <label className="mb-2 block text-sm font-semibold">Profile picture</label>
         <input
           type="file"
           name="avatar"
           accept="image/*"
           onChange={handleAvatarChange}
-          className="w-full"
+          className="w-full text-sm text-foreground/60 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-brand/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-brand hover:file:bg-brand/15"
         />
         <p className="mt-1 text-xs text-foreground/50">Images only, up to 5 MB.</p>
         {avatarUrl && (
@@ -233,9 +233,9 @@ export function AvatarThemeFields({
       </div>
 
       {/* Profile theme */}
-      <div className="rounded-lg border border-foreground/10 p-4 space-y-4">
+      <div className="glass-card space-y-4 rounded-[22px] p-4">
         <div>
-          <p className="text-sm font-medium">Profile theme</p>
+          <p className="text-sm font-semibold">Profile theme</p>
           <p className="text-xs text-foreground/50">
             Optional. Visitors see this on your public profile.
           </p>
@@ -245,16 +245,18 @@ export function AvatarThemeFields({
           {options.map((o) => (
             <label
               key={o.value}
-              className={`flex items-start gap-3 text-sm ${
-                o.disabled ? "opacity-50" : ""
-              }`}
+              className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-3 text-sm transition-colors ${
+                effectiveSource === o.value
+                  ? "border-brand/40 bg-brand/[0.06]"
+                  : "border-foreground/[0.08] hover:bg-foreground/[0.03]"
+              } ${o.disabled ? "cursor-not-allowed opacity-50" : ""}`}
             >
               <input
                 type="radio"
                 checked={effectiveSource === o.value}
                 onChange={() => setSource(o.value)}
                 disabled={o.disabled}
-                className="mt-1"
+                className="mt-1 accent-brand"
               />
               <span>
                 <span className="font-medium">{o.label}</span>
@@ -266,13 +268,13 @@ export function AvatarThemeFields({
 
         {/* Theme image upload */}
         <div>
-          <label className="block text-sm font-medium mb-1">Theme image</label>
+          <label className="mb-2 block text-sm font-semibold">Theme image</label>
           <input
             type="file"
             name="theme_image"
             accept="image/*"
             onChange={handleImageChange}
-            className="w-full"
+            className="w-full text-sm text-foreground/60 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-brand/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-brand hover:file:bg-brand/15"
           />
           <p className="mt-1 text-xs text-foreground/50">
             Images only, up to 5 MB. Wide images work best.
@@ -307,7 +309,7 @@ export function AvatarThemeFields({
         {isHexColor(activeColor) && (
           <>
             <style dangerouslySetInnerHTML={{ __html: css }} />
-            <div className="pfp-theme-preview rounded-lg border border-border bg-background p-3">
+            <div className="pfp-theme-preview rounded-2xl border border-border bg-background p-3">
               {showCover && (
                 <div className="relative aspect-[576/176] overflow-hidden rounded-xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -346,7 +348,7 @@ export function AvatarThemeFields({
         {showCover && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">Adjust your theme image</p>
+              <p className="text-sm font-semibold">Adjust your theme image</p>
               <button
                 type="button"
                 onClick={() => setAdjust(DEFAULT_ADJUST)}
