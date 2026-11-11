@@ -127,7 +127,7 @@ async function ReportsContent({
     `rounded-[14px] py-2 ${active ? "bg-background shadow-sm ring-1 ring-foreground/[0.06]" : "text-foreground/60"}`;
 
   return (
-    <div className="mx-auto max-w-2xl p-6">
+    <div className="mx-auto max-w-2xl px-4 pb-10 pt-safe-3">
       <BackLink href="/">Feed</BackLink>
 
       <PageTitle>Reports</PageTitle>
@@ -318,7 +318,7 @@ export default function AdminReportsPage({
   searchParams: Promise<{ tab?: string }>;
 }) {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-app bg-background">
       <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
         <ReportsContent searchParams={searchParams} />
       </Suspense>

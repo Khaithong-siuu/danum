@@ -63,7 +63,7 @@ async function SearchContent({
   const iFollow = new Set((mine ?? []).map((f) => f.following_id as string));
 
   return (
-    <div className="mx-auto mt-6 max-w-md p-6">
+    <div className="mx-auto max-w-md px-4 pb-10 pt-safe-3">
       <BackLink href="/">Feed</BackLink>
 
       <PageTitle>Find people</PageTitle>
@@ -75,11 +75,11 @@ async function SearchContent({
           defaultValue={term}
           maxLength={30}
           placeholder="Search by username"
-          className="min-w-0 flex-1 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] backdrop-blur-md px-4 py-2 text-sm focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
+          className="min-w-0 flex-1 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] backdrop-blur-md px-4 py-2.5 text-sm focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
         />
         <button
           type="submit"
-          className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white shadow-sm shadow-brand/25 transition-all hover:opacity-95 active:scale-95"
+          className="flex min-h-11 items-center rounded-full bg-brand px-5 text-sm font-semibold text-white shadow-sm shadow-brand/25 transition-all hover:opacity-95 active:scale-95"
         >
           Search
         </button>

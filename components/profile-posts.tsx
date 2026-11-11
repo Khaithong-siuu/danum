@@ -264,7 +264,7 @@ export function ProfilePosts({
                 onClick={(e) => {
                   if (e.target === e.currentTarget) close();
                 }}
-                className="flex h-full w-full shrink-0 snap-center snap-always flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain px-4 pb-8 pt-[calc(env(safe-area-inset-top)+4.5rem)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex h-full w-full shrink-0 snap-center snap-always flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain px-4 pb-[calc(var(--sab)_+_2rem)] pt-[calc(var(--sat)_+_4.5rem)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
                 {Math.abs(i - index) <= 1 && (
                   <div className="mx-auto my-auto w-full max-w-md text-foreground shadow-[0_20px_60px_rgba(0,0,0,0.45)] [&>div:first-child]:!max-w-none [&>div:first-child]:!pb-0">
@@ -316,12 +316,12 @@ export function ProfilePosts({
           )}
 
           {/* Top bar */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
+          <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between px-4 pt-[calc(var(--sat)_+_0.5rem)]">
             <button
               type="button"
               onClick={close}
               aria-label="Close"
-              className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 backdrop-blur-2xl transition active:scale-90"
+              className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 backdrop-blur-2xl transition active:scale-90"
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" aria-hidden="true">
                 <path d="M6 6l12 12M18 6 6 18" />

@@ -95,14 +95,14 @@ function CommentRow({
 
         <div className="mt-1 flex items-center gap-4 text-xs text-foreground/50">
           <span>{timeAgo(c.createdAt)}</span>
-          <button type="button" onClick={() => onReply(c)} className="font-medium">
+          <button type="button" onClick={() => onReply(c)} className="-my-2 py-2 font-medium">
             Reply
           </button>
           {c.canDelete && (
             <button
               type="button"
               onClick={() => onDelete(c)}
-              className="font-medium text-red-500"
+              className="-my-2 py-2 font-medium text-red-500"
             >
               Delete
             </button>
@@ -111,7 +111,7 @@ function CommentRow({
             <button
               type="button"
               onClick={() => onReport(c)}
-              className="font-medium"
+              className="-my-2 py-2 font-medium"
             >
               Report
             </button>
@@ -123,7 +123,7 @@ function CommentRow({
         type="button"
         onClick={() => onLike(c)}
         aria-label={c.liked ? "Unlike comment" : "Like comment"}
-        className={`flex shrink-0 flex-col items-center self-start pt-1 text-xs ${
+        className={`-m-2 flex shrink-0 flex-col items-center self-start p-2 text-xs ${
           c.liked ? "text-red-500" : "text-foreground/50"
         }`}
       >
@@ -352,9 +352,11 @@ export function CommentsSheet({
                     setText("");
                   }}
                   aria-label="Cancel reply"
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground/[0.07]"
+                  className="-my-2 -mr-2 flex h-10 w-10 items-center justify-center rounded-full"
                 >
-                  <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground/[0.07]">
+                    <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                  </span>
                 </button>
               </div>
             )}
@@ -371,9 +373,11 @@ export function CommentsSheet({
                   type="button"
                   onClick={clearImage}
                   aria-label="Remove image"
-                  className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-foreground text-background"
+                  className="absolute -right-3 -top-3 flex h-8 w-8 items-center justify-center rounded-full"
                 >
-                  <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-foreground text-background">
+                    <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                  </span>
                 </button>
               </div>
             )}
@@ -392,7 +396,7 @@ export function CommentsSheet({
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 aria-label="Add a photo"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-foreground/60 transition hover:bg-foreground/[0.06] active:scale-90"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-foreground/60 transition hover:bg-foreground/[0.06] active:scale-90"
               >
                 <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>
               </button>
@@ -409,13 +413,13 @@ export function CommentsSheet({
                 }}
                 maxLength={COMMENT_MAX}
                 placeholder={replyTo ? "Write a reply..." : "Add a comment..."}
-                className="min-w-0 flex-1 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] backdrop-blur-md px-4 py-2 text-sm focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
+                className="min-w-0 flex-1 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] backdrop-blur-md px-4 py-2.5 text-sm focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
               />
               <button
                 type="button"
                 onClick={() => void send()}
                 disabled={sending || (!text.trim() && !image)}
-                className="px-2 text-sm font-semibold text-brand disabled:opacity-40"
+                className="flex min-h-11 items-center px-3 text-[15px] font-semibold text-brand disabled:opacity-40"
               >
                 {sending ? "..." : "Post"}
               </button>

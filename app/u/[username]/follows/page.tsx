@@ -98,7 +98,7 @@ async function FollowsContent({
   const base = `/u/${profile.username}/follows`;
 
   return (
-    <div className="mx-auto mt-6 max-w-md p-6">
+    <div className="mx-auto max-w-md px-4 pb-10 pt-safe-3">
       <BackLink href={`/u/${profile.username}`}>{profile.username}</BackLink>
 
       <div className="mb-4 mt-4 grid grid-cols-2 rounded-2xl bg-foreground/[0.06] p-1 text-center text-sm font-medium">

@@ -47,7 +47,7 @@ export function AdminReportActions({
             type="button"
             onClick={() => setConfirmRemove(true)}
             disabled={busy}
-            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+            className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
           >
             Remove {targetType}
           </button>
@@ -56,7 +56,7 @@ export function AdminReportActions({
           type="button"
           onClick={() => void run("reviewed")}
           disabled={busy}
-          className="rounded-lg bg-foreground/10 px-3 py-1.5 text-sm font-semibold disabled:opacity-50"
+          className="rounded-lg bg-foreground/10 px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
         >
           Mark reviewed
         </button>
@@ -64,7 +64,7 @@ export function AdminReportActions({
           type="button"
           onClick={() => void run("dismissed")}
           disabled={busy}
-          className="rounded-lg bg-foreground/10 px-3 py-1.5 text-sm font-semibold disabled:opacity-50"
+          className="rounded-lg bg-foreground/10 px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
         >
           Dismiss
         </button>

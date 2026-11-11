@@ -149,7 +149,7 @@ async function NewPostContent() {
   }
 
   return (
-    <div className="mx-auto mt-6 max-w-md p-6">
+    <div className="mx-auto max-w-md px-4 pb-10 pt-safe-3">
       <BackLink href="/">Feed</BackLink>
 
       <PageTitle>New post</PageTitle>

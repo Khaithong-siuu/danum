@@ -3,7 +3,7 @@ import { AuthCard } from "@/components/auth-card";
 
 export default function Page() {
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+    <div className="flex min-h-app w-full items-center justify-center px-4 pb-6 pt-safe-6 md:p-10">
       <div className="w-full max-w-sm">
         <AuthCard
           title="Check your email"

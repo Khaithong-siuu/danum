@@ -281,7 +281,7 @@ export function NewReelForm({
           <p className="text-base font-semibold tracking-tight">
             {kind === "video" ? "Choose a video" : "Choose a photo"}
           </p>
-          <p className="mt-1 text-sm text-foreground/50">or drag it here</p>
+          <p className="mt-1 text-sm text-foreground/50 [@media(pointer:coarse)]:hidden">or drag it here</p>
           <p className="mt-4 text-xs text-foreground/40">
             {kind === "video"
               ? `MP4, MOV or WebM · up to ${MAX_VIDEO_SECONDS}s · 50 MB`
@@ -302,7 +302,7 @@ export function NewReelForm({
             <button
               type="button"
               onClick={resetFile}
-              className="shrink-0 rounded-full bg-foreground/[0.07] px-3 py-1 text-xs font-semibold transition hover:bg-foreground/[0.12] active:scale-95"
+              className="flex min-h-10 shrink-0 items-center rounded-full bg-foreground/[0.07] px-4 text-[13px] font-semibold transition hover:bg-foreground/[0.12] active:scale-95"
             >
               Change
             </button>
@@ -369,7 +369,7 @@ export function NewReelForm({
               type="button"
               onClick={() => insertEmoji(emoji)}
               aria-label={`Add ${emoji}`}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground/[0.05] text-base transition hover:scale-110 hover:bg-foreground/[0.1] active:scale-90"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground/[0.05] text-lg transition hover:scale-110 hover:bg-foreground/[0.1] active:scale-90"
             >
               {emoji}
             </button>
@@ -386,7 +386,7 @@ export function NewReelForm({
       <button
         type="submit"
         disabled={!file || uploading}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-3.5 font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:opacity-95 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
+        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-brand py-3.5 font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:opacity-95 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
       >
         {uploading ? (
           <>

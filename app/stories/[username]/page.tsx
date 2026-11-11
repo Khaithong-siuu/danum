@@ -115,7 +115,7 @@ async function StoryContent({
 
   if (stories.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-center">
+      <div className="min-h-app flex flex-col items-center justify-center gap-4 px-4 pb-6 pt-safe-6 text-center">
         <p className="text-lg font-medium">No active stories</p>
         <p className="text-sm text-foreground/60">
           {profile.username} hasn&apos;t posted a story in the last 24 hours.

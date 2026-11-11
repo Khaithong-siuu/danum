@@ -74,7 +74,7 @@ async function NewStoryContent() {
   }
 
   return (
-    <div className="mx-auto max-w-md p-6">
+    <div className="mx-auto max-w-md px-4 pb-10 pt-safe-3">
       <BackLink href="/">Feed</BackLink>
 
       <PageTitle subtitle="Stories disappear after 24 hours.">
@@ -88,7 +88,7 @@ async function NewStoryContent() {
 
 export default function NewStoryPage() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-app bg-background">
       <Suspense fallback={<PageLoading />}>
         <NewStoryContent />
       </Suspense>

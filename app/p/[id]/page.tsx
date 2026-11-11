@@ -57,13 +57,13 @@ export default function PostPage({
   params: Promise<{ id: string }>;
 }) {
   return (
-    <main className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-40 border-b glass-bar shadow-sm">
+    <main className="min-h-app bg-background">
+      <nav className="sticky top-0 z-40 border-b glass-bar pt-safe shadow-sm">
         <div className="mx-auto flex h-14 max-w-xl items-center gap-3 px-4">
           <Link
             href="/"
             aria-label="Back to feed"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground/[0.06] transition-all hover:bg-foreground/[0.1] active:scale-90"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-foreground/[0.06] transition-all hover:bg-foreground/[0.1] active:scale-90"
           >
             <svg
               viewBox="0 0 24 24"

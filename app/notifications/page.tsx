@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { isStorageImageUrl } from "@/lib/safe-url";
 import { timeAgo } from "@/lib/time";
+import { BackLink, PageTitle } from "@/components/page-chrome";
 import { FollowButton } from "@/components/follow-button";
 import { MarkNotificationsRead } from "@/components/mark-notifications-read";
 import { toggleFollow } from "@/app/actions/follows";
@@ -285,27 +286,10 @@ async function NotificationsContent() {
   }
 
   return (
-    <div className="mx-auto max-w-xl p-6">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-0.5 text-sm font-medium text-brand transition active:opacity-60"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          className="-ml-1 h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2.2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="m15 18-6-6 6-6" />
-        </svg>
-        Feed
-      </Link>
+    <div className="mx-auto max-w-xl px-4 pb-10 pt-safe-3">
+      <BackLink href="/">Feed</BackLink>
 
-      <h1 className="mb-6 mt-3 text-[34px] font-bold tracking-tight">Activity</h1>
+      <PageTitle>Activity</PageTitle>
 
       {rows.some((r) => r.read_at === null) && (
         <MarkNotificationsRead markRead={markNotificationsRead} />
@@ -360,7 +344,7 @@ async function NotificationsContent() {
 
 export default function NotificationsPage() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-app bg-background">
       <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
         <NotificationsContent />
       </Suspense>

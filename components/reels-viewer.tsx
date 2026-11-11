@@ -10,6 +10,7 @@ import { EmojiText } from "@/components/emoji-text";
 import type { AddResult, CommentData } from "@/lib/comments";
 import { formatCount } from "@/lib/reels";
 import { timeAgo } from "@/lib/time";
+import { useStatusBarDark } from "@/lib/native";
 
 export type Person = { username: string; avatarUrl: string | null };
 
@@ -156,7 +157,7 @@ function Sheet({
     >
       <div
         className="mx-auto max-h-[70dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border-x border-t border-white/15 bg-neutral-900/70 text-white shadow-[0_-8px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur-3xl animate-in slide-in-from-bottom duration-300"
-        style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+        style={{ paddingBottom: "max(1rem, var(--sab))" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 bg-neutral-900/60 px-4 pb-3 pt-2.5 text-center backdrop-blur-3xl">
@@ -205,6 +206,7 @@ export function ReelsViewer({
   toggleCommentLike: (id: number) => Promise<void>;
   deleteComment: (id: number) => Promise<void>;
 }) {
+  useStatusBarDark(true); // reels are always on black
   const containerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRefs = useRef(new Map<number, HTMLVideoElement>());
@@ -508,7 +510,7 @@ export function ReelsViewer({
 
   if (items.length === 0) {
     return (
-      <div className="flex h-[100dvh] flex-col items-center justify-center gap-5 bg-black p-8 text-center text-white">
+      <div className="h-app flex flex-col items-center justify-center gap-5 bg-black p-8 text-center text-white">
         <div className={`${GLASS} flex h-20 w-20 items-center justify-center rounded-full`}>
           <Icon name="plus" className="h-9 w-9" strokeWidth={1.6} />
         </div>
@@ -545,11 +547,11 @@ export function ReelsViewer({
       <audio ref={audioRef} preload="auto" />
 
       {/* Top bar */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-center justify-between px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-center justify-between px-4 pb-3 pt-[calc(var(--sat)_+_0.5rem)]">
         <Link
           href="/"
           aria-label="Back to feed"
-          className={`pointer-events-auto h-10 w-10 ${GLASS} ${ROUND_BTN}`}
+          className={`pointer-events-auto h-11 w-11 ${GLASS} ${ROUND_BTN}`}
         >
           <Icon name="back" className="h-5 w-5" strokeWidth={2.2} />
         </Link>
@@ -563,21 +565,21 @@ export function ReelsViewer({
             type="button"
             onClick={toggleSound}
             aria-label={soundOn ? "Turn sound off" : "Turn sound on"}
-            className={`h-10 w-10 ${GLASS} ${ROUND_BTN}`}
+            className={`h-11 w-11 ${GLASS} ${ROUND_BTN}`}
           >
             <Icon name={soundOn ? "volumeOn" : "volumeOff"} className="h-5 w-5" />
           </button>
           <Link
             href="/reels/saved"
             aria-label="Saved"
-            className={`h-10 w-10 ${GLASS} ${ROUND_BTN}`}
+            className={`h-11 w-11 ${GLASS} ${ROUND_BTN}`}
           >
             <Icon name="bookmark" className="h-5 w-5" />
           </Link>
           <Link
             href="/reels/new"
             aria-label="New post"
-            className={`h-10 w-10 ${GLASS} ${ROUND_BTN}`}
+            className={`h-11 w-11 ${GLASS} ${ROUND_BTN}`}
           >
             <Icon name="plus" className="h-5 w-5" strokeWidth={2.2} />
           </Link>
@@ -588,7 +590,7 @@ export function ReelsViewer({
       {progress !== null && (
         <div
           className="pointer-events-none absolute inset-x-4 z-30 h-[3px] overflow-hidden rounded-full bg-white/25 backdrop-blur-sm"
-          style={{ top: "calc(max(0.75rem, env(safe-area-inset-top)) + 3.25rem)" }}
+          style={{ top: "calc(var(--sat) + 0.5rem + 3.5rem)" }}
         >
           <div
             className="h-full rounded-full bg-white"
@@ -690,7 +692,7 @@ export function ReelsViewer({
               {/* Actions */}
               <div
                 className="absolute right-3 z-20 flex flex-col items-center gap-4"
-                style={{ bottom: "calc(env(safe-area-inset-bottom) + 6rem)" }}
+                style={{ bottom: "calc(var(--sab) + 6rem)" }}
               >
                 <div className="flex flex-col items-center gap-1">
                   <button
@@ -771,7 +773,7 @@ export function ReelsViewer({
               {/* Author, caption, music */}
               <div
                 className="absolute left-4 right-[4.75rem] z-20"
-                style={{ bottom: "calc(env(safe-area-inset-bottom) + 5.75rem)" }}
+                style={{ bottom: "calc(var(--sab) + 5.75rem)" }}
               >
                 {r.author && (
                   <div className="flex items-center gap-2.5">
@@ -1017,7 +1019,7 @@ export function ReelsViewer({
       {toast && (
         <div
           className="pointer-events-none absolute inset-x-0 z-[60] flex justify-center"
-          style={{ top: "calc(max(0.75rem, env(safe-area-inset-top)) + 3.75rem)" }}
+          style={{ top: "calc(var(--sat) + 0.5rem + 4rem)" }}
         >
           <div
             className={`${GLASS} flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white animate-in fade-in-0 slide-in-from-top-2 duration-300`}

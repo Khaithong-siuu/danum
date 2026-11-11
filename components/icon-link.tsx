@@ -19,7 +19,7 @@ export function IconLink({
       href={href}
       aria-label={label}
       title={label}
-      className={`relative h-10 w-10 items-center justify-center rounded-full text-foreground/80 transition hover:bg-foreground/[0.07] hover:text-foreground active:scale-90 ${
+      className={`relative h-11 w-11 items-center justify-center rounded-full text-foreground/80 transition hover:bg-foreground/[0.07] hover:text-foreground active:scale-90 ${
         hideOnMobile ? "hidden md:flex" : "flex"
       }`}
     >

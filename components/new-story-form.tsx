@@ -117,7 +117,7 @@ export function NewStoryForm({
           <p className="text-base font-semibold tracking-tight">
             Choose a photo
           </p>
-          <p className="mt-1 text-sm text-foreground/50">
+          <p className="mt-1 text-sm text-foreground/50 [@media(pointer:coarse)]:hidden">
             or drag one here
           </p>
           <p className="mt-4 text-xs text-foreground/40">
@@ -147,7 +147,7 @@ export function NewStoryForm({
             type="button"
             onClick={clearImage}
             aria-label="Remove photo"
-            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white backdrop-blur-xl transition active:scale-90 hover:bg-black/60"
+            className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white backdrop-blur-xl transition active:scale-90 hover:bg-black/60"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
           </button>
@@ -179,7 +179,7 @@ export function NewStoryForm({
       <button
         type="submit"
         disabled={!file || submitting}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-3.5 font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:opacity-95 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
+        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-brand py-3.5 font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:opacity-95 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
       >
         {submitting ? (
           <>

@@ -62,7 +62,7 @@ export function ReportSheet({
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-xl bg-foreground/10 py-3 text-sm font-semibold"
+            className="w-full rounded-xl bg-foreground/10 py-3.5 text-[15px] font-semibold"
           >
             Done
           </button>
@@ -73,7 +73,7 @@ export function ReportSheet({
               type="button"
               onClick={() => void submit()}
               disabled={!reason || sending}
-              className="w-full rounded-xl bg-brand py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
+              className="w-full rounded-xl bg-brand py-3.5 text-[15px] font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
             >
               {sending ? "Sending..." : "Send report"}
             </button>
@@ -99,7 +99,7 @@ export function ReportSheet({
                 <button
                   type="button"
                   onClick={() => setReason(r.key)}
-                  className="flex w-full items-center justify-between py-3 text-left text-sm"
+                  className="flex w-full min-h-12 items-center justify-between py-3 text-left text-[15px]"
                 >
                   <span className={reason === r.key ? "font-semibold" : ""}>
                     {r.label}
@@ -123,7 +123,7 @@ export function ReportSheet({
             maxLength={500}
             rows={3}
             placeholder="Add details (optional)"
-            className="w-full resize-none rounded border bg-background px-3 py-2 text-sm"
+            className="w-full resize-none rounded-xl border bg-background px-3 py-2.5 text-base"
           />
         </div>
       )}

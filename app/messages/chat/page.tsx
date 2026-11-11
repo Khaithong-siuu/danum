@@ -16,7 +16,7 @@ function ChatIdContent() {
 
   // Render your chat client logic here using `id`
   return (
-    <div className="p-6">
+    <div className="px-4 pb-6 pt-safe-6">
       <h1 className="text-xl font-bold">Chat Room: {id}</h1>
       {/* Insert your ChatRoom component here */}
     </div>

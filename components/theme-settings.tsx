@@ -76,7 +76,7 @@ export function ThemeSettings() {
                 key={mode.value}
                 type="button"
                 onClick={() => setTheme(mode.value)}
-                className={`flex items-center justify-center gap-1.5 rounded-[14px] py-2 text-sm font-medium transition-all active:scale-95 ${
+                className={`flex items-center justify-center gap-1.5 rounded-[14px] py-2.5 text-sm font-medium transition-all active:scale-95 ${
                   active
                     ? "bg-background text-foreground shadow-sm ring-1 ring-foreground/[0.06]"
                     : "text-foreground/55 hover:text-foreground"
@@ -95,7 +95,7 @@ export function ThemeSettings() {
 
       <div>
         <p className="mb-2 text-sm font-semibold">Accent color</p>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           {ACCENTS.map((a) => (
             <button
               key={a.key}
@@ -103,7 +103,7 @@ export function ThemeSettings() {
               onClick={() => chooseAccent(a.key)}
               aria-label={`${a.label} accent`}
               title={a.label}
-              className={`h-9 w-9 rounded-full transition-all duration-200 active:scale-95 ${
+              className={`h-11 w-11 rounded-full transition-all duration-200 active:scale-95 ${
                 accent === a.key
                   ? "scale-105 ring-2 ring-foreground ring-offset-2 ring-offset-background"
                   : "opacity-80 hover:scale-105 hover:opacity-100"

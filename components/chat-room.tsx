@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Sheet } from "@/components/sheet";
+import { useStatusBarDark } from "@/lib/native";
 import { ListenTogether } from "@/components/listen-together";
 import { EmojiText } from "@/components/emoji-text";
 import type { Track } from "@/lib/music";
@@ -76,6 +77,14 @@ export function ChatRoom({
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const t = getChatTheme(themeKey);
+  // Keep the clock and battery icons readable on dark chat themes
+  useStatusBarDark(
+    themeKey === "midnight" || themeKey === "aurora" || themeKey === "mono"
+      ? true
+      : themeKey === "default"
+        ? null
+        : false
+  );
 
   // Mark as read when the chat opens
   useEffect(() => {
@@ -175,17 +184,17 @@ export function ChatRoom({
   }
 
   return (
-    <div className="h-[100dvh] w-full" style={{ background: t.bg, color: t.text }}>
+    <div className="h-app w-full" style={{ background: t.bg, color: t.text }}>
       <div className="mx-auto flex h-full max-w-md flex-col">
         {/* Header */}
         <header
-          className="flex items-center gap-3 border-b px-4 py-3 backdrop-blur-md"
+          className="flex shrink-0 items-center gap-2 border-b pb-2 pl-2 pr-2 pt-[calc(var(--sat)_+_0.5rem)] backdrop-blur-md"
           style={{ background: t.panel, borderColor: t.border }}
         >
           <Link
             href="/messages"
             aria-label="Back to messages"
-            className="-ml-1 flex h-9 w-9 items-center justify-center rounded-full transition active:scale-90"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition active:scale-90"
           >
             <svg
               viewBox="0 0 24 24"
@@ -213,7 +222,7 @@ export function ChatRoom({
           )}
           <Link
             href={`/u/${other.username}`}
-            className="min-w-0 flex-1 truncate font-semibold hover:underline"
+            className="-my-2 ml-1 min-w-0 flex-1 truncate py-2 font-semibold hover:underline"
           >
             {other.username}
           </Link>
@@ -221,7 +230,7 @@ export function ChatRoom({
             type="button"
             onClick={() => setPickerOpen(true)}
             aria-label="Change chat theme"
-            className="flex h-9 w-9 items-center justify-center rounded-full transition active:scale-90"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition active:scale-90"
             style={{ color: t.accent }}
           >
             <svg
@@ -255,7 +264,7 @@ export function ChatRoom({
         />
 
         {/* Messages */}
-        <div className="flex-1 space-y-2 overflow-y-auto px-4 py-4">
+        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain px-3 py-3">
           {messages.length === 0 && (
             <p className="py-10 text-center text-sm" style={{ color: t.muted }}>
               No messages yet. Say hi 👋
@@ -320,7 +329,7 @@ export function ChatRoom({
         {/* Input */}
         <form
           onSubmit={handleSend}
-          className="border-t p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md"
+          className="shrink-0 border-t px-3 pt-2.5 pb-[max(0.75rem,var(--sab))] backdrop-blur-md"
           style={{ background: t.panel, borderColor: t.border }}
         >
           {error && <p className="mb-2 text-xs text-red-500">{error}</p>}
@@ -331,7 +340,7 @@ export function ChatRoom({
               onChange={(e) => setText(e.target.value)}
               maxLength={1000}
               placeholder="Message..."
-              className="flex-1 rounded-full border px-4 py-2 text-sm outline-none"
+              className="min-w-0 flex-1 rounded-full border px-4 py-2.5 text-base outline-none"
               style={{
                 background: t.input,
                 color: t.text,
@@ -343,7 +352,7 @@ export function ChatRoom({
               type="submit"
               disabled={sending || !text.trim()}
               aria-label="Send message"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition active:scale-90 disabled:opacity-40"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition active:scale-90 disabled:opacity-40"
               style={{ background: t.accent, color: t.bg.startsWith("hsl") ? "#fff" : "#000" }}
             >
               <svg

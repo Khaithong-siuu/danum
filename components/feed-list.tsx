@@ -232,7 +232,7 @@ function PostCard({
     <article
       ref={cardRef}
       id={`post-${post.id}`}
-      className="scroll-mt-20 overflow-hidden rounded-[28px] glass-card transition-all duration-300"
+      className="scroll-mt-[calc(var(--sat)_+_5rem)] overflow-hidden rounded-[28px] glass-card transition-all duration-300"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3.5">
@@ -259,7 +259,7 @@ function PostCard({
           <button
             type="button"
             onClick={() => onDelete(post)}
-            className="flex items-center gap-1 rounded-full bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-500 transition hover:bg-red-500/15 active:scale-95"
+            className="flex min-h-9 items-center gap-1 rounded-full bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-500 transition hover:bg-red-500/15 active:scale-95"
           >
             <Icon name="trash" className="h-3.5 w-3.5" />
             Delete
@@ -269,7 +269,7 @@ function PostCard({
             type="button"
             onClick={() => onReport(post.id)}
             aria-label="Report post"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/45 transition hover:bg-foreground/[0.06] hover:text-foreground active:scale-90"
+            className="-mr-1 flex h-11 w-11 items-center justify-center rounded-full text-foreground/45 transition hover:bg-foreground/[0.06] hover:text-foreground active:scale-90"
           >
             <Icon name="flag" className="h-[18px] w-[18px]" />
           </button>
@@ -325,7 +325,7 @@ function PostCard({
             type="button"
             onClick={() => setVideoMuted((m) => !m)}
             aria-label={videoMuted ? "Turn sound on" : "Turn sound off"}
-            className={`${GLASS_DARK} absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full text-white transition active:scale-90`}
+            className={`${GLASS_DARK} absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full text-white transition active:scale-90`}
           >
             <Icon name={videoMuted ? "volumeOff" : "volumeOn"} className="h-[18px] w-[18px]" />
           </button>
@@ -357,13 +357,13 @@ function PostCard({
       )}
 
       {/* Actions */}
-      <div className="flex items-center justify-between px-4 pt-3.5">
+      <div className="flex items-center justify-between px-4 pt-2">
         <div className="flex items-center gap-4">
           <button
             type="button"
             onClick={() => onLike(post)}
             aria-label={post.liked ? "Unlike" : "Like"}
-            className={`transition-transform duration-200 active:scale-90 ${
+            className={`-m-2 p-2 transition-transform duration-200 active:scale-90 ${
               post.liked ? "text-[#ff3b5c]" : "text-foreground/80 hover:text-foreground"
             }`}
           >
@@ -378,7 +378,7 @@ function PostCard({
             type="button"
             onClick={() => onOpenComments(post.id)}
             aria-label="Comments"
-            className="text-foreground/80 transition-transform duration-200 hover:text-foreground active:scale-90"
+            className="-m-2 p-2 text-foreground/80 transition-transform duration-200 hover:text-foreground active:scale-90"
           >
             <Icon name="comment" className="h-[26px] w-[26px]" />
           </button>
@@ -386,7 +386,7 @@ function PostCard({
             type="button"
             onClick={() => onOpenShare(post.id)}
             aria-label="Send"
-            className="text-foreground/80 transition-transform duration-200 hover:text-foreground active:scale-90"
+            className="-m-2 p-2 text-foreground/80 transition-transform duration-200 hover:text-foreground active:scale-90"
           >
             <Icon name="send" className="h-[26px] w-[26px]" />
           </button>
@@ -396,7 +396,7 @@ function PostCard({
           type="button"
           onClick={() => onSave(post)}
           aria-label={post.saved ? "Remove from saved" : "Save"}
-          className={`transition-transform duration-200 active:scale-90 ${
+          className={`-m-2 p-2 transition-transform duration-200 active:scale-90 ${
             post.saved ? "text-brand" : "text-foreground/80 hover:text-foreground"
           }`}
         >
@@ -408,7 +408,7 @@ function PostCard({
         <button
           type="button"
           onClick={() => onOpenLikers(post.id)}
-          className="font-semibold tabular-nums"
+          className="-my-1 py-1 font-semibold tabular-nums"
         >
           {formatCount(post.likeCount)} {post.likeCount === 1 ? "like" : "likes"}
         </button>
@@ -432,7 +432,7 @@ function PostCard({
           <button
             type="button"
             onClick={() => onToggleMusic(post)}
-            className="inline-flex max-w-full items-center gap-2 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] py-1 pl-1 pr-3.5 text-xs font-medium backdrop-blur-md transition-all hover:bg-foreground/[0.08] active:scale-95"
+            className="inline-flex min-h-10 max-w-full items-center gap-2 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] py-1 pl-1.5 pr-3.5 text-xs font-medium backdrop-blur-md transition-all hover:bg-foreground/[0.08] active:scale-95"
           >
             {post.music.artworkUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -478,7 +478,7 @@ function PostCard({
           <button
             type="button"
             onClick={() => onOpenComments(post.id)}
-            className="text-foreground/55"
+            className="-my-1 block py-1 text-foreground/55"
           >
             View all {formatCount(post.commentCount)}{" "}
             {post.commentCount === 1 ? "comment" : "comments"}
@@ -495,7 +495,7 @@ function PostCard({
         <button
           type="button"
           onClick={() => onOpenComments(post.id)}
-          className="block text-foreground/45"
+          className="-my-1 block py-1 text-foreground/45"
         >
           Add a comment…
         </button>
@@ -723,7 +723,7 @@ export function FeedList({
   const sheetPostId = sheet?.postId ?? null;
 
   return (
-    <div className="mx-auto max-w-xl space-y-8 pb-24 md:pb-10">
+    <div className="mx-auto max-w-xl space-y-6 md:space-y-8 md:pb-10">
       <audio ref={audioRef} preload="auto" onTimeUpdate={onAudioTime} />
 
       {items.map((post, index) => (
@@ -831,7 +831,7 @@ export function FeedList({
                       type="button"
                       onClick={() => sendTo(t, sheetPostId)}
                       disabled={done}
-                      className={`flex items-center gap-1 rounded-full px-4 py-1.5 text-sm font-semibold transition active:scale-95 ${
+                      className={`flex min-h-10 items-center gap-1 rounded-full px-4 py-2 text-sm font-semibold transition active:scale-95 ${
                         done
                           ? "bg-foreground/10 text-foreground/50"
                           : "bg-brand text-white"
@@ -856,7 +856,7 @@ export function FeedList({
             <button
               type="button"
               onClick={() => copyLink(sheetPostId)}
-              className="flex-1 rounded-xl border border-foreground/[0.08] bg-foreground/[0.06] py-2.5 text-sm font-medium backdrop-blur-sm transition-all hover:bg-foreground/[0.1] active:scale-95"
+              className="flex-1 rounded-xl border border-foreground/[0.08] bg-foreground/[0.06] py-3 text-sm font-medium backdrop-blur-sm transition-all hover:bg-foreground/[0.1] active:scale-95"
             >
               Copy link
             </button>
@@ -864,7 +864,7 @@ export function FeedList({
               <button
                 type="button"
                 onClick={() => nativeShare(sheetPostId)}
-                className="flex-1 rounded-xl border border-foreground/[0.08] bg-foreground/[0.06] py-2.5 text-sm font-medium backdrop-blur-sm transition-all hover:bg-foreground/[0.1] active:scale-95"
+                className="flex-1 rounded-xl border border-foreground/[0.08] bg-foreground/[0.06] py-3 text-sm font-medium backdrop-blur-sm transition-all hover:bg-foreground/[0.1] active:scale-95"
               >
                 More…
               </button>
@@ -874,7 +874,7 @@ export function FeedList({
       )}
 
       {toast && (
-        <div className="pointer-events-none fixed inset-x-0 top-20 z-[60] flex justify-center">
+        <div className="pointer-events-none fixed inset-x-0 top-[calc(var(--sat)_+_4.5rem)] z-[60] flex justify-center px-4">
           <div className="glass-dropdown flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium animate-in fade-in-0 slide-in-from-top-2 duration-300">
             <Icon name="check" className="h-4 w-4 text-brand" strokeWidth={2.4} />
             {toast}

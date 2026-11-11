@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useStatusBarDark } from "@/lib/native";
 import { useRouter } from "next/navigation";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { timeAgo } from "@/lib/time";
@@ -33,6 +34,7 @@ export function StoryViewer({
   deleteStory: (storyId: number) => Promise<void>;
 }) {
   const router = useRouter();
+  useStatusBarDark(true); // stories are always on black
   const [stories, setStories] = useState(initialStories);
   const [index, setIndex] = useState(startIndex);
   const [progress, setProgress] = useState(0);
@@ -167,7 +169,7 @@ export function StoryViewer({
         </div>
 
         {/* Top bar */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-black/60 to-transparent p-3 pb-8">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-black/60 to-transparent px-3 pb-8 pt-[calc(var(--sat)_+_0.75rem)]">
           <div className="flex gap-1">
             {stories.map((s, i) => (
               <div
@@ -185,7 +187,7 @@ export function StoryViewer({
             ))}
           </div>
 
-          <div className="mt-3 flex items-center justify-between">
+          <div className="mt-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
               {author.avatarUrl ? (
                 <Image
@@ -206,12 +208,12 @@ export function StoryViewer({
               </span>
             </div>
 
-            <div className="pointer-events-auto flex items-center gap-4">
+            <div className="pointer-events-auto flex items-center gap-2">
               {isOwner && (
                 <button
                   type="button"
                   onClick={askDelete}
-                  className="rounded-full border border-white/15 bg-white/15 px-3 py-1 text-sm font-medium text-red-300 backdrop-blur-md transition active:scale-95"
+                  className="flex min-h-10 items-center rounded-full border border-white/15 bg-white/15 px-4 text-sm font-medium text-red-300 backdrop-blur-md transition active:scale-95"
                 >
                   Delete
                 </button>
@@ -219,7 +221,7 @@ export function StoryViewer({
               <Link
                 href="/"
                 aria-label="Close stories"
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/15 text-white backdrop-blur-md transition active:scale-90"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/15 text-white backdrop-blur-md transition active:scale-90"
               >
                 <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
               </Link>
@@ -229,7 +231,7 @@ export function StoryViewer({
 
         {/* Caption */}
         {story.caption && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/70 to-transparent p-4 pt-10">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/70 to-transparent px-4 pb-[calc(var(--sab)_+_1rem)] pt-10">
             <p className="text-center text-white">{story.caption}</p>
           </div>
         )}

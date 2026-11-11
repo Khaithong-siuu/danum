@@ -31,6 +31,22 @@
     --radius: 0.5rem;
     --brand: 217 91% 60%;
     --glass-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.75);
+
+    /*
+     * Safe areas: the space taken by the phone's status bar, notch, gesture
+     * bar and rounded corners. The Android app draws the page edge to edge,
+     * so without this the header slides under the clock and the back button
+     * can't be tapped.
+     *
+     * Two sources, whichever is bigger wins:
+     *  - env(safe-area-inset-*): iPhone, PWAs and newer Android WebViews
+     *  - --safe-area-inset-*:    injected by Capacitor's SystemBars plugin for
+     *                            older Android WebViews where env() is always 0
+     */
+    --sat: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+    --sab: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+    --sal: max(env(safe-area-inset-left, 0px), var(--safe-area-inset-left, 0px));
+    --sar: max(env(safe-area-inset-right, 0px), var(--safe-area-inset-right, 0px));
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -106,6 +122,20 @@
     text-rendering: optimizeLegibility;
     letter-spacing: -0.011em;
     overscroll-behavior-y: none;
+    /* Never let one wide element make the whole page scroll sideways */
+    overflow-x: clip;
+    /* Keep content out of the rounded corners / camera cut-out when rotated */
+    padding-left: var(--sal);
+    padding-right: var(--sar);
+  }
+
+  /* No 300ms tap delay or accidental double-tap zoom on anything tappable */
+  a,
+  button,
+  summary,
+  label,
+  [role="button"] {
+    touch-action: manipulation;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -133,6 +163,40 @@
 }
 
 @layer utilities {
+  /* Safe-area helpers. Use these instead of writing env(...) by hand. */
+  .pt-safe {
+    padding-top: var(--sat);
+  }
+  .pb-safe {
+    padding-bottom: var(--sab);
+  }
+  .top-safe {
+    top: var(--sat);
+  }
+  /* A gap under the status bar, plus a little breathing room */
+  .pt-safe-3 {
+    padding-top: calc(var(--sat) + 0.75rem);
+  }
+  .pt-safe-6 {
+    padding-top: calc(var(--sat) + 1.5rem);
+  }
+  .pb-safe-3 {
+    padding-bottom: calc(var(--sab) + 0.75rem);
+  }
+  /* Room for the floating tab bar so the last item is never hidden behind it */
+  .pb-tabbar {
+    padding-bottom: calc(var(--sab) + 6.5rem);
+  }
+  /* Full screen height that follows the on-screen keyboard and browser bars */
+  .h-app {
+    height: 100vh;
+    height: 100dvh;
+  }
+  .min-h-app {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
   .text-brand {
     color: hsl(var(--brand));
   }
@@ -272,5 +336,12 @@
   .animate-heart-burst, .animate-like-pop, .animate-vinyl {
     animation-duration: 0.01ms;
     animation-iteration-count: 1;
+  }
+}
+/* Sliders: a taller touch area so the thumb is easy to grab with a finger */
+@media (hover: none) and (pointer: coarse) {
+  input[type="range"] {
+    min-height: 1.75rem;
+    touch-action: pan-y;
   }
 }

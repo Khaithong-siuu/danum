@@ -92,17 +92,17 @@ async function HomeBody({
   const following = tab === "following";
 
   return (
-    <div className="px-4 pb-32 pt-6 md:pb-6">
+    <div className="pb-tabbar px-4 pt-4 md:pb-6 md:pt-6">
       <div className="mx-auto mb-5 max-w-xl">
         <Suspense fallback={<div className="h-[92px]" />}>
           <StoriesBar />
         </Suspense>
       </div>
 
-      <div className="mx-auto mb-6 grid max-w-xl grid-cols-2 rounded-2xl bg-foreground/[0.06] p-1 text-center text-sm font-semibold">
+      <div className="mx-auto mb-4 grid max-w-xl grid-cols-2 rounded-2xl bg-foreground/[0.06] p-1 text-center text-sm font-semibold">
         <Link
           href="/"
-          className={`flex items-center justify-center gap-2 rounded-[14px] py-2 transition-all duration-200 ${
+          className={`flex min-h-10 items-center justify-center gap-2 rounded-[14px] py-2.5 transition-all duration-200 ${
             !following
               ? "bg-background text-foreground shadow-sm ring-1 ring-foreground/[0.06]"
               : "text-foreground/55 hover:text-foreground"
@@ -112,7 +112,7 @@ async function HomeBody({
         </Link>
         <Link
           href="/?tab=following"
-          className={`flex items-center justify-center gap-2 rounded-[14px] py-2 transition-all duration-200 ${
+          className={`flex min-h-10 items-center justify-center gap-2 rounded-[14px] py-2.5 transition-all duration-200 ${
             following
               ? "bg-background text-foreground shadow-sm ring-1 ring-foreground/[0.06]"
               : "text-foreground/55 hover:text-foreground"
@@ -157,8 +157,8 @@ export default function Home({
   searchParams: Promise<{ tab?: string }>;
 }) {
   return (
-    <main className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-40 border-b glass-bar pt-[env(safe-area-inset-top)]">
+    <main className="min-h-app bg-background">
+      <nav className="sticky top-0 z-40 border-b glass-bar pt-safe">
         <div className="mx-auto flex h-14 max-w-xl items-center justify-between px-4">
           <SiteLogo />
 

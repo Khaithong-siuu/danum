@@ -229,12 +229,12 @@ async function UsersContent({
     .sort((a, b) => (reportCounts.get(b) ?? 0) - (reportCounts.get(a) ?? 0));
 
   return (
-    <div className="mx-auto max-w-2xl p-6">
+    <div className="mx-auto max-w-2xl px-4 pb-10 pt-safe-3">
       <div className="flex items-center justify-between">
         <BackLink href="/">Feed</BackLink>
         <Link
           href="/admin/reports"
-          className="text-[15px] font-medium text-brand transition active:opacity-60"
+          className="flex min-h-11 items-center text-[16px] font-medium text-brand transition active:opacity-60"
         >
           Reports
         </Link>
@@ -249,11 +249,11 @@ async function UsersContent({
           defaultValue={term}
           maxLength={30}
           placeholder="Search by username"
-          className="min-w-0 flex-1 rounded-full border bg-background px-4 py-2 text-sm"
+          className="min-w-0 flex-1 rounded-full border bg-background px-4 py-2.5 text-sm"
         />
         <button
           type="submit"
-          className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+          className="flex min-h-11 items-center rounded-full bg-brand px-4 text-sm font-semibold text-white hover:opacity-90"
         >
           Search
         </button>
@@ -339,7 +339,7 @@ export default function AdminUsersPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-app bg-background">
       <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
         <UsersContent searchParams={searchParams} />
       </Suspense>

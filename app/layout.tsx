@@ -5,6 +5,7 @@ import { ACCENT_COOKIE, DEFAULT_ACCENT, isAccent } from "@/lib/theme";
 import { getMySuspension } from "@/lib/suspension";
 import { SuspendedNotice } from "@/components/suspended-notice";
 import { TabBar } from "@/components/tab-bar";
+import { NativeChrome } from "@/components/native-chrome";
 import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
@@ -25,6 +26,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  // The on-screen keyboard shrinks the page instead of covering the input bar
+  interactiveWidget: "resizes-content",
 };
 
 export default async function RootLayout({
@@ -69,6 +72,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <NativeChrome />
           {suspension ? (
             <SuspendedNotice
               reason={suspension.reason}

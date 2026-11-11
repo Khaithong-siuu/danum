@@ -21,7 +21,7 @@ export function SuspendedNotice({
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background p-6">
+    <main className="flex min-h-app items-center justify-center bg-background px-4 pb-6 pt-safe-6">
       <div className="w-full max-w-sm text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10 text-red-500">
           <svg

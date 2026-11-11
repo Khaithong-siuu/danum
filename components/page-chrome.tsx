@@ -12,11 +12,11 @@ export function BackLink({
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-0.5 text-[15px] font-medium text-brand transition active:opacity-60"
+      className="-ml-3 inline-flex min-h-11 items-center gap-0.5 rounded-full pl-3 pr-4 text-[16px] font-medium text-brand transition active:opacity-60"
     >
       <svg
         viewBox="0 0 24 24"
-        className="-ml-1 h-5 w-5"
+        className="-ml-0.5 h-6 w-6"
         fill="none"
         stroke="currentColor"
         strokeWidth={2.2}
@@ -40,8 +40,8 @@ export function PageTitle({
   subtitle?: string;
 }) {
   return (
-    <div className="mb-6 mt-3">
-      <h1 className="text-[34px] font-bold leading-tight tracking-tight">
+    <div className="mb-5 mt-1">
+      <h1 className="text-[30px] font-bold leading-tight tracking-tight sm:text-[34px]">
         {children}
       </h1>
       {subtitle && (

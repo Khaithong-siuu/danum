@@ -35,7 +35,7 @@ export function FollowButton({
       type="button"
       onClick={handleClick}
       className={`rounded-full font-semibold transition-all duration-200 active:scale-95 ${
-        compact ? "px-3 py-1 text-sm" : "px-5 py-1.5 text-sm"
+        compact ? "min-h-9 px-4 py-1.5 text-sm" : "min-h-10 px-6 py-2 text-sm"
       } ${
         following
           ? "bg-foreground/[0.08] hover:bg-foreground/[0.12] text-foreground border border-foreground/[0.06] backdrop-blur-sm"

@@ -58,7 +58,7 @@ export function ProfileActions({
         type="button"
         onClick={() => setMenuOpen(true)}
         aria-label="More options"
-        className="rounded-lg bg-foreground/10 px-3 py-1 text-sm font-semibold"
+        className="flex min-h-10 min-w-11 items-center justify-center rounded-xl bg-foreground/[0.07] px-3 text-sm font-semibold"
       >
         ⋯
       </button>
@@ -72,7 +72,7 @@ export function ProfileActions({
               type="button"
               onClick={requestToggle}
               disabled={busy}
-              className="w-full rounded-xl px-3 py-3 text-left text-sm font-medium text-red-600 hover:bg-foreground/5 disabled:opacity-50"
+              className="w-full rounded-xl px-3 py-3.5 text-left text-[15px] font-medium text-red-600 hover:bg-foreground/5 disabled:opacity-50"
             >
               {initiallyBlocked ? `Unblock ${username}` : `Block ${username}`}
             </button>
@@ -83,7 +83,7 @@ export function ProfileActions({
                 setMenuOpen(false);
                 setReportOpen(true);
               }}
-              className="w-full rounded-xl px-3 py-3 text-left text-sm font-medium text-red-600 hover:bg-foreground/5"
+              className="w-full rounded-xl px-3 py-3.5 text-left text-[15px] font-medium text-red-600 hover:bg-foreground/5"
             >
               Report account
             </button>

@@ -52,7 +52,7 @@ export function UserMenu({
   const initial = (username?.[0] ?? "?").toUpperCase();
 
   const itemClass =
-    "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition hover:bg-foreground/[0.06] active:scale-[0.98]";
+    "flex w-full items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-medium transition hover:bg-foreground/[0.06] active:scale-[0.98]";
 
   return (
     <div ref={ref} className="relative">
@@ -61,15 +61,15 @@ export function UserMenu({
         onClick={() => setOpen((o) => !o)}
         aria-label="Account menu"
         aria-expanded={open}
-        className="ml-1 flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-foreground/10 text-sm font-semibold ring-2 ring-brand/30 transition hover:ring-brand/60 active:scale-95"
+        className="ml-1 flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-foreground/10 text-sm font-semibold ring-2 ring-brand/30 transition hover:ring-brand/60 active:scale-95"
       >
         {avatarUrl ? (
           <Image
             src={avatarUrl}
             alt=""
-            width={36}
-            height={36}
-            className="h-9 w-9 object-cover"
+            width={40}
+            height={40}
+            className="h-10 w-10 object-cover"
           />
         ) : (
           initial

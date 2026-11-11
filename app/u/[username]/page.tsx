@@ -169,19 +169,19 @@ export default async function PublicProfilePage({
 
   return (
     <main
-      className={`min-h-screen bg-background text-foreground ${
+      className={`min-h-app bg-background text-foreground ${
         themed ? "pfp-theme" : ""
       }`}
     >
       {themed && <style dangerouslySetInnerHTML={{ __html: themeCss }} />}
 
-      <nav className="sticky top-0 z-50 border-b glass-bar">
+      <nav className="sticky top-0 z-50 border-b glass-bar pt-safe">
         <div className="mx-auto flex h-14 max-w-xl items-center px-4">
           <SiteLogo />
         </div>
       </nav>
 
-      <div className="mx-auto max-w-xl px-4 py-8">
+      <div className="mx-auto max-w-xl px-4 pb-6 pt-4">
         <div className="mb-8">
           <ProfileHero
             username={profile.username}

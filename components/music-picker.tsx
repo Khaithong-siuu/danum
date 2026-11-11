@@ -161,7 +161,7 @@ export function MusicPicker({
               stop();
               onChange(null);
             }}
-            className="text-xs font-medium text-red-500"
+            className="-my-2 py-2 pl-3 text-[13px] font-medium text-red-500"
           >
             Remove
           </button>
@@ -257,7 +257,7 @@ export function MusicPicker({
               placeholder="Search any song or artist"
               maxLength={80}
               autoFocus
-              className="min-w-0 flex-1 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] backdrop-blur-md px-4 py-2 text-sm focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
+              className="min-w-0 flex-1 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] backdrop-blur-md px-4 py-2.5 text-sm focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
             />
             <button
               type="button"
@@ -265,7 +265,7 @@ export function MusicPicker({
                 stop();
                 setOpen(false);
               }}
-              className="px-2 text-sm text-foreground/60"
+              className="flex min-h-10 items-center px-3 text-sm text-foreground/60"
             >
               Cancel
             </button>

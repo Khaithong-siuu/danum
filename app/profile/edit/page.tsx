@@ -267,7 +267,7 @@ async function ProfileContent({
   const label = "mb-1.5 block text-sm font-semibold";
 
   return (
-    <div className="mx-auto mt-6 max-w-md px-4 pb-32">
+    <div className="mx-auto max-w-md px-4 pb-32 pt-safe-3">
       <BackLink href={profileHref ?? "/"}>Profile</BackLink>
 
       <PageTitle>Edit profile</PageTitle>
@@ -289,7 +289,7 @@ async function ProfileContent({
         <div className="glass-card rounded-[22px] px-4 py-3.5 text-sm">
           <div className="flex items-center justify-between gap-4">
             <span className="font-medium">Email</span>
-            <span className="truncate text-foreground/60">{user.email}</span>
+            <span className="min-w-0 truncate text-foreground/60">{user.email}</span>
           </div>
           <p className="mt-1.5 text-xs text-foreground/45">
             Only you can see your email. It is never shown on your public profile.
@@ -388,7 +388,7 @@ async function ProfileContent({
         </section>
 
         {/* Save bar stays in reach above the tab bar */}
-        <div className="glass-bar sticky bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-20 rounded-3xl border p-1.5 shadow-lg md:bottom-4">
+        <div className="glass-bar sticky bottom-[calc(var(--sab)_+_5.5rem)] z-20 rounded-3xl border p-1.5 shadow-lg md:bottom-4">
           <button
             type="submit"
             className="h-12 w-full rounded-[20px] bg-brand text-[15px] font-semibold text-white shadow-lg shadow-brand/30 transition-all hover:opacity-95 active:scale-[0.98]"

@@ -314,7 +314,7 @@ export function ListenTogether({
       <audio ref={audioRef} loop preload="auto" />
 
       <div
-        className="border-b px-4 py-2"
+        className="shrink-0 border-b px-3 py-1"
         style={{
           background: theme.panel,
           borderColor: theme.border,
@@ -325,15 +325,15 @@ export function ListenTogether({
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="flex w-full items-center justify-center gap-2 py-0.5 text-sm font-medium"
+            className="flex min-h-11 w-full items-center justify-center gap-2 text-[15px] font-medium"
             style={{ color: theme.accent }}
           >
             <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 14v-2a9 9 0 0 1 18 0v2" /><path d="M21 15a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2zM3 15a2 2 0 0 0 2 2h1v-5H5a2 2 0 0 0-2 2z" /></svg>
             Listen together
           </button>
         ) : (
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
+          <div className="pb-1">
+            <div className="flex items-center gap-2">
               <Art url={session.artworkUrl} size={36} />
 
               <div className="min-w-0 flex-1">
@@ -347,7 +347,7 @@ export function ListenTogether({
                 <button
                   type="button"
                   onClick={join}
-                  className="shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold"
+                  className="flex min-h-10 shrink-0 items-center rounded-full px-4 text-sm font-semibold"
                   style={{ background: theme.accent, color: theme.bg.startsWith("hsl") ? "#fff" : "#000" }}
                 >
                   Join
@@ -357,7 +357,7 @@ export function ListenTogether({
                   type="button"
                   onClick={() => void togglePlay()}
                   aria-label={session.isPlaying ? "Pause" : "Play"}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition active:scale-90"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition active:scale-90"
                   style={{ color: theme.accent }}
                 >
                   {session.isPlaying ? (
@@ -371,7 +371,7 @@ export function ListenTogether({
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="shrink-0 text-xs font-medium"
+                className="flex min-h-11 shrink-0 items-center px-1.5 text-[13px] font-medium"
                 style={{ color: theme.accent }}
               >
                 Change
@@ -379,7 +379,7 @@ export function ListenTogether({
               <button
                 type="button"
                 onClick={() => setConfirmEnd(true)}
-                className="shrink-0 text-xs font-medium text-red-500"
+                className="flex min-h-11 shrink-0 items-center px-1.5 text-[13px] font-medium text-red-500"
               >
                 End
               </button>
@@ -410,7 +410,7 @@ export function ListenTogether({
               placeholder="Search any song or artist"
               maxLength={80}
               autoFocus
-              className="w-full rounded-full border bg-background px-4 py-2 text-sm"
+              className="w-full rounded-full border bg-background px-4 py-2.5 text-base"
             />
 
             {searching && (
@@ -428,7 +428,7 @@ export function ListenTogether({
                     <button
                       type="button"
                       onClick={() => void pick(t)}
-                      className="flex w-full items-center gap-3 py-2 text-left"
+                      className="flex min-h-14 w-full items-center gap-3 py-2 text-left"
                     >
                       <Art url={t.artworkUrl} size={44} />
                       <span className="min-w-0">

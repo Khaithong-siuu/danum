@@ -179,7 +179,7 @@ export function TabBar({ username = null }: { username?: string | null }) {
 
       <nav
         aria-label="Main"
-        className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[calc(env(safe-area-inset-bottom)+0.75rem)] md:hidden"
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[calc(var(--sab)_+_0.75rem)] md:hidden"
       >
         <div
           ref={barRef}

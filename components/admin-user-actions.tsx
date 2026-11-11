@@ -123,7 +123,7 @@ export function AdminUserActions({
           type="button"
           onClick={requestLift}
           disabled={busy}
-          className="rounded-lg bg-foreground/10 px-3 py-1.5 text-sm font-semibold disabled:opacity-50"
+          className="rounded-lg bg-foreground/10 px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
         >
           {busy ? "..." : "Lift suspension"}
         </button>
@@ -139,7 +139,7 @@ export function AdminUserActions({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold text-white"
+          className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white"
         >
           Suspend…
         </button>
@@ -171,7 +171,7 @@ export function AdminUserActions({
               type="button"
               onClick={requestSuspend}
               disabled={busy}
-              className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+              className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
             >
               {busy ? "Suspending..." : "Confirm suspension"}
             </button>
@@ -182,7 +182,7 @@ export function AdminUserActions({
                 setError(null);
               }}
               disabled={busy}
-              className="rounded-lg bg-foreground/10 px-3 py-1.5 text-sm font-semibold"
+              className="rounded-lg bg-foreground/10 px-4 py-2.5 text-sm font-semibold"
             >
               Cancel
             </button>

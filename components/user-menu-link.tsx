@@ -13,12 +13,12 @@ export async function UserMenuLink() {
   if (!uid) {
     return (
       <div className="flex items-center gap-2 text-sm font-medium">
-        <Link href="/auth/login" className="rounded-lg px-3 py-1.5 hover:bg-foreground/5">
+        <Link href="/auth/login" className="flex min-h-10 items-center rounded-lg px-3 hover:bg-foreground/5">
           Log in
         </Link>
         <Link
           href="/auth/sign-up"
-          className="rounded-lg bg-brand px-3 py-1.5 text-white hover:opacity-90"
+          className="flex min-h-10 items-center rounded-lg bg-brand px-3.5 text-white hover:opacity-90"
         >
           Sign up
         </Link>

@@ -118,7 +118,7 @@ export async function StoriesBar() {
     ownGroup && own?.username ? `/stories/${own.username}` : "/stories/new";
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-2">
+    <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-no-swipe>
       {/* Your story */}
       <div className="relative w-16 shrink-0 text-center">
         <Link href={ownHref} className="block">
@@ -130,7 +130,7 @@ export async function StoriesBar() {
         <Link
           href="/stories/new"
           aria-label="Add to your story"
-          className="absolute -bottom-0.5 right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-xs font-bold text-white shadow-md shadow-brand/30 ring-2 ring-background transition-transform hover:scale-110 active:scale-95"
+          className="absolute -bottom-1 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-bold text-white shadow-md shadow-brand/30 ring-2 ring-background transition-transform hover:scale-110 active:scale-95"
         >
           +
         </Link>
