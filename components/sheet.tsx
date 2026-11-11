@@ -26,6 +26,7 @@ export function Sheet({
 
   return (
     <div
+      data-no-swipe="true"
       className="fixed inset-0 z-50 flex items-end bg-black/30 backdrop-blur-sm"
       onClick={onClose}
     >

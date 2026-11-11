@@ -5,6 +5,7 @@ import { ACCENT_COOKIE, DEFAULT_ACCENT, isAccent } from "@/lib/theme";
 import { getMySuspension } from "@/lib/suspension";
 import { SuspendedNotice } from "@/components/suspended-notice";
 import { TabBar } from "@/components/tab-bar";
+import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -38,6 +39,27 @@ export default async function RootLayout({
   // A suspended account sees only this notice, on every page
   const suspension = await getMySuspension();
 
+  // The tab bar is for signed-in people; it also needs your username so your
+  // own profile page lights up the Profile tab
+  let signedIn = false;
+  let myUsername: string | null = null;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getClaims();
+    const uid = data?.claims?.sub;
+    if (uid) {
+      signedIn = true;
+      const { data: p } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", uid)
+        .maybeSingle();
+      myUsername = (p?.username as string | undefined) ?? null;
+    }
+  } catch {
+    // no tab bar if we cannot tell who is signed in
+  }
+
   return (
     <html lang="en" data-accent={accent} suppressHydrationWarning>
       <body>
@@ -55,7 +77,7 @@ export default async function RootLayout({
           ) : (
             <>
               {children}
-              <TabBar />
+              {signedIn && <TabBar username={myUsername} />}
             </>
           )}
         </ThemeProvider>

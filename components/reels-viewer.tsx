@@ -150,6 +150,7 @@ function Sheet({
 }) {
   return (
     <div
+      data-no-swipe="true"
       className="fixed inset-0 z-50 flex items-end bg-black/50 backdrop-blur-sm animate-in fade-in-0 duration-200"
       onClick={onClose}
     >
@@ -689,7 +690,7 @@ export function ReelsViewer({
               {/* Actions */}
               <div
                 className="absolute right-3 z-20 flex flex-col items-center gap-4"
-                style={{ bottom: "calc(env(safe-area-inset-bottom) + 1.5rem)" }}
+                style={{ bottom: "calc(env(safe-area-inset-bottom) + 6rem)" }}
               >
                 <div className="flex flex-col items-center gap-1">
                   <button
@@ -770,7 +771,7 @@ export function ReelsViewer({
               {/* Author, caption, music */}
               <div
                 className="absolute left-4 right-[4.75rem] z-20"
-                style={{ bottom: "calc(env(safe-area-inset-bottom) + 1.25rem)" }}
+                style={{ bottom: "calc(env(safe-area-inset-bottom) + 5.75rem)" }}
               >
                 {r.author && (
                   <div className="flex items-center gap-2.5">

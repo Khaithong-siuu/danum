@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
+import { Icon } from "@/components/icons";
 import {
   FeedList,
   type ChatTarget,
@@ -42,17 +43,9 @@ export type ViewerData = {
   deleteComment: (id: number) => Promise<void>;
 };
 
-function PlayBadge() {
-  return (
-    <svg viewBox="0 0 24 24" className="ml-px h-2.5 w-2.5" fill="currentColor" aria-hidden="true">
-      <path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" />
-    </svg>
-  );
-}
-
 function StackBadge() {
   return (
-    <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="m12 2 10 5-10 5L2 7l10-5Z" />
       <path d="m2 17 10 5 10-5" />
       <path d="m2 12 10 5 10-5" />
@@ -81,8 +74,8 @@ function Tile({ post }: { post: GridPost }) {
         />
       )}
       {(post.kind === "video" || post.multi) && (
-        <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-md">
-          {post.multi ? <StackBadge /> : <PlayBadge />}
+        <span className="pointer-events-none absolute right-1.5 top-1.5 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.65)]">
+          {post.multi ? <StackBadge /> : <Icon name="reels" className="h-[18px] w-[18px]" strokeWidth={2} />}
         </span>
       )}
     </>
