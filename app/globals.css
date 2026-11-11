@@ -154,7 +154,7 @@
   @media (hover: none) and (pointer: coarse) {
     input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not(
         [type="file"]
-      ),
+      ):not([data-otp]),
     textarea,
     select {
       font-size: 16px !important;

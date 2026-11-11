@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { AuthCard, AuthError, AUTH_INPUT, AUTH_SUBMIT } from "@/components/auth-card";
+import { EmailCodeStep } from "@/components/email-code-step";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
@@ -18,7 +19,29 @@ export function SignUpForm({
   const [repeatPassword, setRepeatPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState<"form" | "code">("form");
   const router = useRouter();
+
+  async function verifyCode(token: string): Promise<string | null> {
+    const supabase = createClient();
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: "signup",
+    });
+    if (error) {
+      return "That code didn't work. It may have expired, so ask for a new one.";
+    }
+    router.push("/");
+    router.refresh();
+    return null;
+  }
+
+  async function resendCode(): Promise<string | null> {
+    const supabase = createClient();
+    const { error } = await supabase.auth.resend({ type: "signup", email });
+    return error ? error.message : null;
+  }
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,21 +56,45 @@ export function SignUpForm({
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/protected`,
+          emailRedirectTo: `${window.location.origin}/`,
         },
       });
       if (error) throw error;
-      router.push("/auth/sign-up-success");
+
+      // If email confirmation is switched off in Supabase you're already in
+      if (data.session) {
+        router.push("/");
+        router.refresh();
+        return;
+      }
+
+      // Otherwise Supabase has emailed a code to confirm the address
+      setStep("code");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (step === "code") {
+    return (
+      <div className={cn("flex flex-col gap-6", className)} {...props}>
+        <EmailCodeStep
+          email={email}
+          title="Confirm your email"
+          buttonLabel="Confirm and continue"
+          onVerify={verifyCode}
+          onResend={resendCode}
+          onBack={() => setStep("form")}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
