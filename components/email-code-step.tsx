@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { AuthCard, AuthError, AUTH_SUBMIT } from "@/components/auth-card";
 
-/** Must match "Email OTP Length" in Supabase (Authentication > Providers > Email). Default is 6. */
-export const CODE_LENGTH = 6;
+/** Must match "Email OTP Length" in Supabase (Authentication > Providers > Email). Supabase now defaults to 8. */
+export const CODE_LENGTH = 8;
 
 /** Supabase only lets one email go out per address every 60 seconds. */
 const RESEND_SECONDS = 60;
@@ -127,7 +127,7 @@ export function EmailCodeStep({
           value={code}
           onChange={handleChange}
           disabled={busy}
-          className="h-16 w-full rounded-2xl border border-foreground/[0.1] bg-foreground/[0.04] pl-[0.5em] text-center text-[30px] font-semibold tracking-[0.5em] tabular-nums outline-none transition-all placeholder:text-foreground/20 focus:border-brand/50 focus:ring-2 focus:ring-brand/25 disabled:opacity-60"
+          className="h-16 w-full rounded-2xl border border-foreground/[0.1] bg-foreground/[0.04] pl-[0.3em] text-center text-[24px] font-semibold tracking-[0.3em] tabular-nums outline-none transition-all placeholder:text-foreground/20 focus:border-brand/50 focus:ring-2 focus:ring-brand/25 disabled:opacity-60"
         />
 
         {error && <AuthError message={error} />}

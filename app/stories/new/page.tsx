@@ -5,11 +5,14 @@ import { createClient } from "@/lib/supabase/server";
 import { NewStoryForm } from "@/components/new-story-form";
 import { BackLink, PageLoading, PageTitle } from "@/components/page-chrome";
 
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-async function createStory(
-  formData: FormData
-): Promise<{ ok: boolean; error?: string }> {
+/** The photo is already in storage (uploaded from the phone); this saves the story. */
+async function createStory(input: {
+  path: string;
+  caption: string;
+}): Promise<{ ok: boolean; error?: string }> {
   "use server";
 
   const supabase = await createClient();
@@ -22,28 +25,15 @@ async function createStory(
     return { ok: false, error: "Please log in first." };
   }
 
-  const file = formData.get("image") as File | null;
-  const caption = ((formData.get("caption") as string) || "").trim().slice(0, 140);
+  const path = String(input?.path ?? "");
+  const caption = String(input?.caption ?? "").trim().slice(0, 140);
 
-  if (!file || file.size === 0) {
-    return { ok: false, error: "Choose an image for your story." };
-  }
-  if (!file.type.startsWith("image/")) {
-    return { ok: false, error: "Your story must be an image file." };
-  }
-  if (file.size > MAX_IMAGE_BYTES) {
-    return { ok: false, error: "Your story image must be smaller than 5 MB." };
-  }
-
-  const ext = file.name.split(".").pop() || "jpg";
-  const path = `${user.id}-story-${Date.now()}.${ext}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from("photos")
-    .upload(path, file);
-
-  if (uploadError) {
-    return { ok: false, error: "Could not upload your story. Please try again." };
+  // Only accept a file this user just uploaded for a story
+  if (
+    !UUID_REGEX.test(user.id) ||
+    !new RegExp(`^${user.id}-story-\\d{10,16}\\.(jpg|jpeg|png|webp)$`, "i").test(path)
+  ) {
+    return { ok: false, error: "Upload isn't valid." };
   }
 
   const { data } = supabase.storage.from("photos").getPublicUrl(path);
@@ -81,7 +71,7 @@ async function NewStoryContent() {
         Add to your story
       </PageTitle>
 
-      <NewStoryForm action={createStory} />
+      <NewStoryForm userId={user.id} action={createStory} />
     </div>
   );
 }

@@ -1,195 +1,176 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { processPhoto, type MediaKind } from "@/lib/media";
+import {
+  FilterStrip,
+  MediaActions,
+  MediaStage,
+  MediaTray,
+  useMediaItems,
+} from "@/components/media-picker";
 
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
+const ALLOW_LIST: MediaKind[] = ["photo"];
+const MAX_STORIES = 10;
+
+type CreateStory = (input: {
+  path: string;
+  caption: string;
+}) => Promise<{ ok: boolean; error?: string }>;
 
 export function NewStoryForm({
+  userId,
   action,
 }: {
-  action: (formData: FormData) => Promise<{ ok: boolean; error?: string }>;
+  userId: string;
+  action: CreateStory;
 }) {
   const router = useRouter();
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [caption, setCaption] = useState("");
+  const supabase = useMemo(() => createClient(), []);
+
+  const media = useMediaItems({ allow: ALLOW_LIST, max: MAX_STORIES });
+  const { active } = media;
+
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-
-  function clearImage() {
-    if (preview) URL.revokeObjectURL(preview);
-    setFile(null);
-    setPreview(null);
-  }
-
-  function processFile(f: File) {
-    setError(null);
-    if (!f.type.startsWith("image/")) {
-      setError("Please select a JPG, PNG or WebP image file.");
-      return;
-    }
-    if (f.size > MAX_IMAGE_BYTES) {
-      setError("Story image must be smaller than 5 MB.");
-      return;
-    }
-    if (preview) URL.revokeObjectURL(preview);
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
-  }
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (f) processFile(f);
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    setIsDragging(false);
-    const f = e.dataTransfer.files?.[0];
-    if (f) processFile(f);
-  }
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(
+    null
+  );
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!file || submitting) return;
+    if (media.items.length === 0 || submitting) return;
 
     setSubmitting(true);
     setError(null);
+    media.setError(null);
 
-    const formData = new FormData();
-    formData.append("image", file);
-    formData.append("caption", caption);
+    const queue = [...media.items];
+    setProgress({ done: 0, total: queue.length });
 
-    try {
-      const res = await action(formData);
-      if (!res.ok) {
+    for (let i = 0; i < queue.length; i++) {
+      const item = queue[i];
+
+      try {
+        const file = await processPhoto(item.file, item.filter);
+        // Offset by i so every story in the run gets its own file name
+        const path = `${userId}-story-${Date.now() + i}.jpg`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("photos")
+          .upload(path, file, { contentType: "image/jpeg", upsert: false });
+
+        if (uploadError) throw new Error("Could not upload your story.");
+
+        const res = await action({ path, caption: item.caption });
+        if (!res.ok) throw new Error(res.error || "Could not save your story.");
+
+        // This one is live: take it off the list so a retry doesn't repeat it
+        media.remove(item.id);
+        setProgress({ done: i + 1, total: queue.length });
+      } catch (err) {
         setSubmitting(false);
-        setError(res.error || "Could not save your story.");
+        setProgress(null);
+        setError(
+          (err instanceof Error ? err.message : "Couldn't share your story.") +
+            (i > 0 ? ` ${i} of ${queue.length} were shared.` : "")
+        );
         return;
       }
-
-      router.push("/");
-      router.refresh();
-    } catch {
-      setSubmitting(false);
-      setError("Couldn't share your story. Please try again.");
     }
+
+    router.push("/");
+    router.refresh();
   }
+
+  const count = media.items.length;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {error && (
-        <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600 animate-in fade-in-0">
-          {error}
-        </div>
+      <MediaStage
+        item={active}
+        shape="story"
+        caption={active?.caption}
+        busy={submitting}
+        onRemove={active ? () => media.remove(active.id) : undefined}
+      />
+
+      <MediaActions
+        allow={ALLOW_LIST}
+        multiple
+        disabled={submitting || media.reading}
+        onFiles={(files) => void media.add(files)}
+      />
+
+      <MediaTray
+        items={media.items}
+        activeId={active?.id ?? null}
+        numbered
+        disabled={submitting}
+        onSelect={media.setActiveId}
+        onRemove={media.remove}
+      />
+
+      {media.reading && (
+        <p className="text-center text-xs text-foreground/50">Reading your photos…</p>
       )}
 
-      {/* Dropzone or preview */}
-      {!preview ? (
-        <div
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
-          className={`group relative flex aspect-[9/12] max-h-[420px] w-full flex-col items-center justify-center rounded-[28px] border border-dashed p-8 text-center transition-all ${
-            isDragging
-              ? "border-brand bg-brand/10 scale-[1.01]"
-              : "border-foreground/20 bg-foreground/[0.02] hover:border-brand/50 hover:bg-brand/[0.04]"
-          }`}
-        >
+      <FilterStrip
+        item={active}
+        onChange={(filter) => active && media.update(active.id, { filter })}
+      />
+
+      {active && (
+        <div className="glass-card rounded-2xl p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <label htmlFor="story-caption" className="text-sm font-semibold">
+              Caption{count > 1 ? " for this photo" : ""}
+            </label>
+            <span className="text-xs tabular-nums text-foreground/40">
+              {active.caption.length}/140
+            </span>
+          </div>
           <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            required
-            onChange={handleFileChange}
-            className="absolute inset-0 cursor-pointer opacity-0"
+            id="story-caption"
+            type="text"
+            value={active.caption}
+            onChange={(e) => media.update(active.id, { caption: e.target.value })}
+            maxLength={140}
+            placeholder="Add a caption"
+            disabled={submitting}
+            className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-2.5 text-sm transition-all focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/20"
           />
-
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-[20px] bg-gradient-to-br from-brand/20 to-brand/5 text-brand ring-1 ring-brand/20 transition-transform group-hover:scale-105">
-            <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>
-          </div>
-
-          <p className="text-base font-semibold tracking-tight">
-            Choose a photo
-          </p>
-          <p className="mt-1 text-sm text-foreground/50 [@media(pointer:coarse)]:hidden">
-            or drag one here
-          </p>
-          <p className="mt-4 text-xs text-foreground/40">
-            Vertical works best · JPG, PNG or WebP · up to 5 MB
-          </p>
-        </div>
-      ) : (
-        <div className="relative mx-auto w-full max-w-[280px] overflow-hidden rounded-[28px] bg-black shadow-2xl shadow-black/30 ring-1 ring-foreground/10">
-          <div className="relative aspect-[9/16] w-full">
-            <Image
-              src={preview}
-              alt="Story preview"
-              fill
-              className="object-cover"
-            />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/50 to-transparent" />
-            {caption && (
-              <div className="absolute inset-x-0 bottom-5 px-4 text-center">
-                <span className="inline-block max-w-full rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-medium text-white backdrop-blur-xl">
-                  {caption}
-                </span>
-              </div>
-            )}
-          </div>
-
-          <button
-            type="button"
-            onClick={clearImage}
-            aria-label="Remove photo"
-            className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white backdrop-blur-xl transition active:scale-90 hover:bg-black/60"
-          >
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
-          </button>
         </div>
       )}
 
-      {/* Caption */}
-      <div className="glass-card rounded-2xl p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <label htmlFor="story-caption" className="text-sm font-semibold">
-            Caption
-          </label>
-          <span className="text-xs tabular-nums text-foreground/40">
-            {caption.length}/140
-          </span>
+      {(error || media.error) && (
+        <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600 animate-in fade-in-0">
+          {error || media.error}
         </div>
-        <input
-          id="story-caption"
-          type="text"
-          value={caption}
-          onChange={(e) => setCaption(e.target.value)}
-          maxLength={140}
-          placeholder="Add a caption"
-          className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-2.5 text-sm transition-all focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/20"
-        />
-      </div>
+      )}
 
-      {/* Submit */}
-      <button
-        type="submit"
-        disabled={!file || submitting}
-        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-brand py-3.5 font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:opacity-95 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
-      >
-        {submitting ? (
-          <>
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-            <span>Sharing…</span>
-          </>
-        ) : (
-          <span>Share to your story</span>
-        )}
-      </button>
+      <div className="sticky bottom-0 -mx-4 px-4 pb-[max(0.75rem,var(--sab))] pt-3 glass-bar border-t">
+        <button
+          type="submit"
+          disabled={count === 0 || submitting}
+          className="liquid-brand flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-semibold text-white transition-all active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
+        >
+          {submitting ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <span>
+                Sharing{progress ? ` ${Math.min(progress.done + 1, progress.total)} of ${progress.total}` : ""}…
+              </span>
+            </>
+          ) : (
+            <span>
+              {count > 1 ? `Share ${count} stories` : "Share to your story"}
+            </span>
+          )}
+        </button>
+      </div>
     </form>
   );
 }

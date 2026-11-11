@@ -1,19 +1,23 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Track } from "@/lib/music";
 import { MusicPicker, type MusicChoice } from "@/components/music-picker";
 import {
   CAPTION_MAX,
-  MAX_PHOTO_BYTES,
   MAX_VIDEO_BYTES,
   MAX_VIDEO_SECONDS,
-  PHOTO_TYPES,
-  VIDEO_TYPES,
-  type ReelKind,
 } from "@/lib/reels";
+import { processPhoto, type MediaKind } from "@/lib/media";
+import {
+  FilterStrip,
+  MediaActions,
+  MediaStage,
+  MediaTray,
+  useMediaItems,
+} from "@/components/media-picker";
 
 type CreateReel = (input: {
   kind: string;
@@ -27,24 +31,7 @@ type CreateReel = (input: {
 
 const QUICK_EMOJI = ["🔥", "✨", "❤️", "😂", "🎉", "👏", "🙌", "🎧"];
 
-function UploadIcon({ className = "h-6 w-6" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M12 16V4" />
-      <path d="m7 9 5-5 5 5" />
-      <path d="M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" />
-    </svg>
-  );
-}
+const ALLOW_LIST: MediaKind[] = ["photo", "video"];
 
 export function NewReelForm({
   userId,
@@ -58,128 +45,47 @@ export function NewReelForm({
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
-  const [kind, setKind] = useState<ReelKind>("video");
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [duration, setDuration] = useState<number | null>(null);
+  const media = useMediaItems({
+    allow: ALLOW_LIST,
+    max: 8,
+    maxVideoSeconds: MAX_VIDEO_SECONDS,
+    maxVideoBytes: MAX_VIDEO_BYTES,
+  });
+  const { active } = media;
+
   const [caption, setCaption] = useState("");
   const [music, setMusic] = useState<MusicChoice | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
 
   function insertEmoji(emoji: string) {
     setCaption((prev) => (prev ? `${prev} ${emoji}` : emoji));
   }
 
-  // Free the temporary preview when it changes or the page closes
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
-  function resetFile() {
-    setFile(null);
-    setPreviewUrl(null);
-    setDuration(null);
-  }
-
-  function chooseKind(next: ReelKind) {
-    if (next === kind) return;
-    resetFile();
-    setError(null);
-    setKind(next);
-  }
-
-  function processFile(f: File) {
-    setError(null);
-    resetFile();
-
-    const allowed = kind === "video" ? VIDEO_TYPES : PHOTO_TYPES;
-    if (!allowed.includes(f.type)) {
-      setError(
-        kind === "video"
-          ? "Choose an MP4, MOV or WebM video."
-          : "Choose a JPG, PNG or WebP photo."
-      );
-      return;
-    }
-
-    const maxBytes = kind === "video" ? MAX_VIDEO_BYTES : MAX_PHOTO_BYTES;
-    if (f.size > maxBytes) {
-      setError(
-        `That file is too large. The limit is ${Math.round(maxBytes / 1024 / 1024)} MB.`
-      );
-      return;
-    }
-
-    const url = URL.createObjectURL(f);
-
-    if (kind === "photo") {
-      setFile(f);
-      setPreviewUrl(url);
-      return;
-    }
-
-    // Read the video length before accepting it
-    const probe = document.createElement("video");
-    probe.preload = "metadata";
-    probe.onloadedmetadata = () => {
-      const seconds = Math.ceil(probe.duration);
-
-      if (!Number.isFinite(seconds) || seconds < 1) {
-        setError("We couldn't read that video.");
-        URL.revokeObjectURL(url);
-        return;
-      }
-      if (seconds > MAX_VIDEO_SECONDS) {
-        setError(
-          `Reels can be up to ${MAX_VIDEO_SECONDS} seconds. Yours is ${seconds}.`
-        );
-        URL.revokeObjectURL(url);
-        return;
-      }
-
-      setDuration(seconds);
-      setFile(f);
-      setPreviewUrl(url);
-    };
-    probe.onerror = () => {
-      setError("We couldn't read that video.");
-      URL.revokeObjectURL(url);
-    };
-    probe.src = url;
-  }
-
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (f) processFile(f);
-  }
-
-  function handleDragOver(e: React.DragEvent) {
-    e.preventDefault();
-    setIsDragging(true);
-  }
-
-  function handleDragLeave(e: React.DragEvent) {
-    e.preventDefault();
-    setIsDragging(false);
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    setIsDragging(false);
-    const f = e.dataTransfer.files?.[0];
-    if (f) processFile(f);
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!file || uploading) return;
+    if (!active || uploading) return;
 
     setUploading(true);
     setError(null);
+    media.setError(null);
+
+    const kind = active.kind;
+    let file = active.file;
+
+    // Photos are shrunk and get their filter baked in before upload
+    if (kind === "photo") {
+      try {
+        file = await processPhoto(active.file, active.filter);
+      } catch (err) {
+        setUploading(false);
+        setError(
+          err instanceof Error ? err.message : "We couldn't prepare that photo."
+        );
+        return;
+      }
+    }
+    const duration = active.duration;
 
     const rawExt = (file.name.split(".").pop() || "")
       .toLowerCase()
@@ -196,7 +102,12 @@ export function NewReelForm({
     // The file goes straight from the phone to storage, so big videos work
     const { error: uploadError } = await supabase.storage
       .from("photos")
-      .upload(path, file, { contentType: file.type, upsert: false });
+      .upload(path, file, {
+        contentType:
+          file.type ||
+          (ext === "mov" ? "video/quicktime" : ext === "webm" ? "video/webm" : "video/mp4"),
+        upsert: false,
+      });
 
     if (uploadError) {
       setUploading(false);
@@ -226,115 +137,49 @@ export function NewReelForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Video or photo */}
-      <div className="grid grid-cols-2 rounded-2xl bg-foreground/[0.06] p-1 text-sm font-semibold">
-        {(
-          [
-            ["video", "Video reel"],
-            ["photo", "Photo post"],
-          ] as const
-        ).map(([value, label]) => (
-          <button
-            key={value}
-            type="button"
-            onClick={() => chooseKind(value)}
-            className={`rounded-[14px] py-2.5 transition-all duration-200 ${
-              kind === value
-                ? "bg-background text-foreground shadow-sm ring-1 ring-foreground/[0.06]"
-                : "text-foreground/55 hover:text-foreground"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      {/* Stage */}
+      <MediaStage
+        item={active}
+        shape="post"
+        busy={uploading}
+        onRemove={active ? () => media.remove(active.id) : undefined}
+      />
 
-      {/* Upload */}
-      {!file ? (
-        <div
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          className={`group relative flex aspect-[4/3] w-full flex-col items-center justify-center rounded-[28px] border border-dashed p-8 text-center transition-all duration-200 ${
-            isDragging
-              ? "scale-[1.01] border-brand bg-brand/10"
-              : "border-foreground/20 bg-foreground/[0.02] hover:border-brand/50 hover:bg-brand/[0.04]"
-          }`}
-        >
-          <input
-            key={kind}
-            type="file"
-            accept={
-              kind === "video"
-                ? "video/mp4,video/quicktime,video/webm"
-                : "image/jpeg,image/png,image/webp"
-            }
-            onChange={handleFile}
-            className="absolute inset-0 cursor-pointer opacity-0"
-            aria-label={kind === "video" ? "Choose a video" : "Choose a photo"}
-          />
+      {/* Gallery / camera */}
+      <MediaActions
+        allow={ALLOW_LIST}
+        multiple
+        disabled={uploading || media.reading}
+        onFiles={(files) => void media.add(files)}
+      />
 
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-[20px] bg-gradient-to-br from-brand/20 to-brand/5 text-brand ring-1 ring-brand/20 transition-transform group-hover:scale-105">
-            <UploadIcon className="h-7 w-7" />
-          </div>
+      <MediaTray
+        items={media.items}
+        activeId={active?.id ?? null}
+        disabled={uploading}
+        onSelect={media.setActiveId}
+        onRemove={media.remove}
+      />
 
-          <p className="text-base font-semibold tracking-tight">
-            {kind === "video" ? "Choose a video" : "Choose a photo"}
-          </p>
-          <p className="mt-1 text-sm text-foreground/50 [@media(pointer:coarse)]:hidden">or drag it here</p>
-          <p className="mt-4 text-xs text-foreground/40">
-            {kind === "video"
-              ? `MP4, MOV or WebM · up to ${MAX_VIDEO_SECONDS}s · 50 MB`
-              : "JPG, PNG or WebP · up to 10 MB"}
-          </p>
-        </div>
-      ) : (
-        <div className="glass-card overflow-hidden rounded-[28px] p-4">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">{file.name}</p>
-              <p className="text-xs text-foreground/50">
-                {(file.size / (1024 * 1024)).toFixed(1)} MB
-                {duration ? ` · ${duration}s` : ""}
-              </p>
-            </div>
+      {media.reading && (
+        <p className="text-center text-xs text-foreground/50">Reading your files…</p>
+      )}
 
-            <button
-              type="button"
-              onClick={resetFile}
-              className="flex min-h-10 shrink-0 items-center rounded-full bg-foreground/[0.07] px-4 text-[13px] font-semibold transition hover:bg-foreground/[0.12] active:scale-95"
-            >
-              Change
-            </button>
-          </div>
+      <FilterStrip
+        item={active}
+        onChange={(filter) => active && media.update(active.id, { filter })}
+      />
 
-          {previewUrl && (
-            <div className="relative mx-auto max-w-[280px] overflow-hidden rounded-2xl bg-black ring-1 ring-foreground/10">
-              {kind === "video" ? (
-                <video
-                  src={previewUrl}
-                  controls
-                  playsInline
-                  muted
-                  className="max-h-[45dvh] w-full object-contain"
-                />
-              ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={previewUrl}
-                  alt="Preview"
-                  className="max-h-[45dvh] w-full object-contain"
-                />
-              )}
-            </div>
-          )}
-        </div>
+      {media.items.length > 1 && (
+        <p className="px-1 text-center text-xs text-foreground/50">
+          Only the highlighted one is shared. Tap another to switch.
+        </p>
       )}
 
       {/* Music (optional for both) */}
       <div className="space-y-2">
         <MusicPicker search={searchMusic} value={music} onChange={setMusic} />
-        {kind === "video" && music && (
+        {active?.kind === "video" && music && (
           <p className="px-1 text-xs text-foreground/50">
             The song replaces the video&apos;s original sound.
           </p>
@@ -377,15 +222,15 @@ export function NewReelForm({
         </div>
       </div>
 
-      {error && (
+      {(error || media.error) && (
         <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600 animate-in fade-in-0">
-          {error}
+          {error || media.error}
         </div>
       )}
 
       <button
         type="submit"
-        disabled={!file || uploading}
+        disabled={!active || uploading}
         className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-brand py-3.5 font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:opacity-95 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
       >
         {uploading ? (

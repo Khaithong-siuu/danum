@@ -258,6 +258,54 @@
       var(--glass-specular);
   }
 
+  /* Liquid glass: refractive pills and chips (specular edge + soft depth) */
+  .liquid {
+    background: linear-gradient(
+      180deg,
+      hsl(var(--foreground) / 0.1) 0%,
+      hsl(var(--foreground) / 0.04) 100%
+    );
+    backdrop-filter: blur(18px) saturate(190%);
+    -webkit-backdrop-filter: blur(18px) saturate(190%);
+    border: 1px solid hsl(var(--foreground) / 0.1);
+    box-shadow:
+      var(--glass-specular),
+      0 8px 22px -10px hsl(var(--foreground) / 0.3);
+  }
+  .liquid-brand {
+    background: linear-gradient(
+      180deg,
+      hsl(var(--brand) / 0.95) 0%,
+      hsl(var(--brand) / 0.78) 100%
+    );
+    border: 1px solid hsl(var(--brand) / 0.6);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.45),
+      0 10px 26px -10px hsl(var(--brand) / 0.7);
+  }
+  /* Glass that sits on top of photos and video, always light-on-dark */
+  .liquid-media {
+    color: #fff;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.24) 0%,
+      rgba(255, 255, 255, 0.08) 100%
+    );
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.4),
+      0 8px 24px -10px rgba(0, 0, 0, 0.6);
+  }
+  /* Hides scrollbars on swipe rows */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Gradient Text & Borders */
   .gradient-text-brand {
     background: linear-gradient(135deg, hsl(var(--brand)) 0%, #ec4899 50%, #8b5cf6 100%);

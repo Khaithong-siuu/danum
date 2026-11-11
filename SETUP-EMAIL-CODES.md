@@ -1,6 +1,6 @@
 # Email codes: one-time Supabase setup
 
-The app now logs in, confirms sign-ups and resets passwords with a 6-digit code
+The app now logs in, confirms sign-ups and resets passwords with an 8-digit code
 emailed to the user. The code in the repo is ready; these dashboard steps are
 what make the emails actually carry a code. Everything here is on free tiers.
 
@@ -42,7 +42,7 @@ older dashboards). Edit each of these and make sure the body contains
 **Authentication > Providers > Email**
 
 - **Confirm email**: ON (otherwise sign-up skips the code step).
-- **Email OTP Length**: 6 (the app expects 6 digits; it's the default).
+- **Email OTP Length**: 8 (the app expects 8 digits; this is Supabase's default).
 - **Email OTP Expiration**: the default (3600 seconds) is fine.
 
 ## 3. Set up a free SMTP sender (important)
