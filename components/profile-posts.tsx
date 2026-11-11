@@ -115,6 +115,8 @@ export function ProfilePosts({
     y: number;
     vertical: boolean | null;
     atTop: boolean;
+    startLeft: number;
+    dx: number;
   } | null>(null);
 
   const feed = viewer?.feed ?? [];
@@ -172,6 +174,8 @@ export function ProfilePosts({
       y: t.clientY,
       vertical: null,
       atTop: e.currentTarget.scrollTop <= 0,
+      startLeft: scroller.current?.scrollLeft ?? 0,
+      dx: 0,
     };
   }
 
@@ -181,6 +185,7 @@ export function ProfilePosts({
     const t = e.touches[0];
     const dx = t.clientX - s.x;
     const dy = t.clientY - s.y;
+    s.dx = dx;
 
     if (s.vertical === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
       s.vertical = Math.abs(dy) > Math.abs(dx);
@@ -190,9 +195,27 @@ export function ProfilePosts({
   }
 
   function onTouchEnd() {
-    if (dragY > 110) close();
-    else setDragY(0);
+    const s = touch.current;
     touch.current = null;
+
+    if (dragY > 110) {
+      close();
+      return;
+    }
+    setDragY(0);
+
+    // Safety net: if the browser did not scroll sideways by itself after a
+    // clear sideways swipe, move to the next / previous post ourselves.
+    if (s && s.vertical === false && Math.abs(s.dx) > 50) {
+      const dir = s.dx < 0 ? 1 : -1;
+      window.setTimeout(() => {
+        const el = scroller.current;
+        if (!el) return;
+        if (Math.abs(el.scrollLeft - s.startLeft) < 8) {
+          el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" });
+        }
+      }, 80);
+    }
   }
 
   return (
@@ -248,7 +271,7 @@ export function ProfilePosts({
                 onClick={(e) => {
                   if (e.target === e.currentTarget) close();
                 }}
-                className="flex h-full w-full shrink-0 snap-center snap-always flex-col overflow-y-auto overscroll-contain px-4 pb-8 pt-[calc(env(safe-area-inset-top)+4.5rem)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex h-full w-full shrink-0 snap-center snap-always flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain px-4 pb-8 pt-[calc(env(safe-area-inset-top)+4.5rem)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
                 {Math.abs(i - index) <= 1 && (
                   <div className="mx-auto my-auto w-full max-w-md text-foreground shadow-[0_20px_60px_rgba(0,0,0,0.45)] [&>div:first-child]:!max-w-none [&>div:first-child]:!pb-0">
@@ -272,6 +295,32 @@ export function ProfilePosts({
               </div>
             ))}
           </div>
+
+          {/* Arrows for mouse users; on a phone you just swipe */}
+          {index > 0 && (
+            <button
+              type="button"
+              aria-label="Previous post"
+              onClick={() =>
+                scroller.current?.scrollBy({ left: -scroller.current.clientWidth, behavior: "smooth" })
+              }
+              className="absolute left-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 backdrop-blur-2xl transition active:scale-90 md:flex"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+            </button>
+          )}
+          {index < feed.length - 1 && (
+            <button
+              type="button"
+              aria-label="Next post"
+              onClick={() =>
+                scroller.current?.scrollBy({ left: scroller.current.clientWidth, behavior: "smooth" })
+              }
+              className="absolute right-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 backdrop-blur-2xl transition active:scale-90 md:flex"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+          )}
 
           {/* Top bar */}
           <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
