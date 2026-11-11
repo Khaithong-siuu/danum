@@ -207,12 +207,20 @@ export default async function PublicProfilePage({
             ]}
           >
             {isOwner ? (
-              <Link
-                href="/profile"
-                className="flex-1 rounded-xl bg-foreground/[0.07] py-2 text-center text-sm font-semibold transition hover:bg-foreground/[0.12] active:scale-95"
-              >
-                Edit profile
-              </Link>
+              <>
+                <Link
+                  href="/profile/edit"
+                  className="flex-1 rounded-xl bg-foreground/[0.07] py-2 text-center text-sm font-semibold transition hover:bg-foreground/[0.12] active:scale-95"
+                >
+                  Edit profile
+                </Link>
+                <Link
+                  href="/reels/saved"
+                  className="flex-1 rounded-xl bg-foreground/[0.07] py-2 text-center text-sm font-semibold transition hover:bg-foreground/[0.12] active:scale-95"
+                >
+                  Saved
+                </Link>
+              </>
             ) : user ? (
               <>
                 {!iBlocked && (
