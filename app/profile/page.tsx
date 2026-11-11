@@ -8,13 +8,14 @@ import { AvatarThemeFields } from "@/components/avatar-theme-fields";
 import { LogoutRow } from "@/components/logout-row";
 import { ProfileHero } from "@/components/profile-hero";
 import { isHexColor } from "@/lib/pfp-theme";
+import { getStoryRing } from "@/lib/story-ring";
 import { isStorageImageUrl } from "@/lib/safe-url";
 import {
   DEFAULT_ADJUST,
   imageStyle,
   normalizeAdjust,
 } from "@/lib/theme-image";
-import { BackLink, PageLoading, PageTitle, SectionLabel } from "@/components/page-chrome";
+import { BackLink, PageLoading, SectionLabel } from "@/components/page-chrome";
 
 const USERNAME_REGEX = /^[a-zA-Z0-9._]{3,30}$/;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -277,6 +278,7 @@ async function ProfileContent({
       .eq("user_id", user.id),
   ]);
 
+  const storyRing = await getStoryRing(supabase, user.id, user.id);
   const coverUrl = initialSource === "image" ? themeImageUrl : null;
   const profileHref = profile?.username ? `/u/${profile.username}` : null;
 
@@ -288,7 +290,7 @@ async function ProfileContent({
     <div className="mx-auto mt-6 max-w-md px-4 pb-32">
       <BackLink href="/">Feed</BackLink>
 
-      <PageTitle>Profile</PageTitle>
+      <div className="h-3" />
 
       {saved && (
         <div className="mb-4 rounded-2xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm text-green-600 animate-in fade-in-0">
@@ -308,7 +310,8 @@ async function ProfileContent({
           username={profile?.username ?? "New here"}
           fullName={profile?.full_name}
           bio={profile?.bio}
-          website={null}
+          website={profile?.website ?? null}
+          storyRing={storyRing}
           avatarUrl={avatarUrl}
           coverUrl={coverUrl}
           coverStyle={imageStyle(initialAdjust)}
@@ -329,14 +332,14 @@ async function ProfileContent({
           {profileHref && (
             <Link
               href={profileHref}
-              className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand/25 transition active:scale-95"
+              className="flex-1 rounded-xl bg-brand py-2 text-center text-sm font-semibold text-white transition active:scale-95"
             >
               View profile
             </Link>
           )}
           <Link
             href="/reels/saved"
-            className="rounded-full bg-foreground/[0.07] px-5 py-2 text-sm font-semibold transition hover:bg-foreground/[0.12] active:scale-95"
+            className="flex-1 rounded-xl bg-foreground/[0.07] py-2 text-center text-sm font-semibold transition hover:bg-foreground/[0.12] active:scale-95"
           >
             Saved
           </Link>

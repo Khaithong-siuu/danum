@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { buildThemeCss, isHexColor } from "@/lib/pfp-theme";
@@ -8,8 +7,25 @@ import { imageStyle, normalizeAdjust } from "@/lib/theme-image";
 import { FollowButton } from "@/components/follow-button";
 import { ProfileActions } from "@/components/profile-actions";
 import { ProfileHero } from "@/components/profile-hero";
+import { ProfilePosts } from "@/components/profile-posts";
 import { SiteLogo } from "@/components/site-logo";
+import { getStoryRing } from "@/lib/story-ring";
+import { loadFeed } from "@/lib/feed";
 import { toggleFollow } from "@/app/actions/follows";
+import {
+  deletePost,
+  getLikers,
+  recordView,
+  sendToChat,
+  toggleLike,
+  toggleSave,
+} from "@/app/actions/posts";
+import {
+  addComment,
+  deleteComment,
+  getComments,
+  toggleCommentLike,
+} from "@/app/actions/comments";
 
 export default async function PublicProfilePage({
   params,
@@ -140,6 +156,14 @@ export default async function PublicProfilePage({
     fade: profile.theme_image_fade,
   });
 
+  const storyRing = iBlocked
+    ? "none"
+    : await getStoryRing(supabase, profile.id, user?.id ?? null);
+
+  // Everything the floating post card needs (likes, comments, share).
+  // Signed-out visitors just get links to the post pages.
+  const feedData = !iBlocked && posts.length > 0 ? await loadFeed({ authorId: profile.id }) : null;
+
   const followersHref = `/u/${profile.username}/follows?tab=followers`;
   const followingHref = `/u/${profile.username}/follows?tab=following`;
 
@@ -164,6 +188,7 @@ export default async function PublicProfilePage({
             fullName={profile.full_name}
             bio={profile.bio}
             website={profile.website}
+            storyRing={storyRing}
             avatarUrl={avatarUrl}
             coverUrl={coverUrl}
             coverStyle={imageStyle(adjust)}
@@ -184,7 +209,7 @@ export default async function PublicProfilePage({
             {isOwner ? (
               <Link
                 href="/profile"
-                className="rounded-full bg-foreground/[0.07] px-5 py-2 text-sm font-semibold transition hover:bg-foreground/[0.12] active:scale-95"
+                className="flex-1 rounded-xl bg-foreground/[0.07] py-2 text-center text-sm font-semibold transition hover:bg-foreground/[0.12] active:scale-95"
               >
                 Edit profile
               </Link>
@@ -207,71 +232,58 @@ export default async function PublicProfilePage({
           </ProfileHero>
         </div>
 
+        {!iBlocked && (
+          <div className="mb-3 flex justify-center border-b border-foreground/[0.08]">
+            <span className="-mb-px flex items-center gap-2 border-b-2 border-brand px-6 pb-2.5 text-[13px] font-semibold text-brand">
+              <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="7.5" height="7.5" rx="1.5" />
+                <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5" />
+                <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5" />
+                <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5" />
+              </svg>
+              Posts
+            </span>
+          </div>
+        )}
+
         {iBlocked ? (
           <p className="py-16 text-center text-foreground/60">
             You&apos;ve blocked this account. Their posts are hidden from you, and
             they can&apos;t message you or follow you. Use the ⋯ menu to unblock.
           </p>
         ) : posts.length === 0 ? (
-          <p className="py-16 text-center text-foreground/60">No posts yet</p>
+          <p className="py-16 text-center text-sm text-foreground/55">
+            {isOwner ? "Your posts will show up here." : "No posts yet."}
+          </p>
         ) : (
-          <div className="grid grid-cols-3 gap-1.5">
-            {posts.map((post) => (
-              <Link
-                key={post.id}
-                href={`/p/${post.id}`}
-                className="relative aspect-square overflow-hidden rounded-xl bg-foreground/5 transition active:scale-[0.97]"
-              >
-                {post.kind === "video" ? (
-                  <video
-                    src={`${post.media_url}#t=0.1`}
-                    preload="metadata"
-                    muted
-                    playsInline
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <Image
-                    src={post.media_url}
-                    alt={post.caption || "Post"}
-                    fill
-                    className="object-cover transition hover:opacity-90"
-                    sizes="(max-width: 640px) 33vw, 192px"
-                  />
-                )}
-
-                {(post.kind === "video" || multi.has(post.id)) && (
-                  <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-md">
-                    {multi.has(post.id) ? (
-                      <svg
-                        viewBox="0 0 24 24"
-                        className="h-3 w-3"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="m12 2 10 5-10 5L2 7l10-5Z" />
-                        <path d="m2 17 10 5 10-5" />
-                        <path d="m2 12 10 5 10-5" />
-                      </svg>
-                    ) : (
-                      <svg
-                        viewBox="0 0 24 24"
-                        className="ml-px h-2.5 w-2.5"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" />
-                      </svg>
-                    )}
-                  </span>
-                )}
-              </Link>
-            ))}
-          </div>
+          <ProfilePosts
+            viewer={
+              feedData
+                ? {
+                    feed: feedData.posts,
+                    chatTargets: feedData.chatTargets,
+                    userId: feedData.userId,
+                    toggleLike,
+                    toggleSave,
+                    recordView,
+                    getLikers,
+                    sendToChat,
+                    deletePost,
+                    getComments,
+                    addComment,
+                    toggleCommentLike,
+                    deleteComment,
+                  }
+                : null
+            }
+            posts={posts.map((p) => ({
+              id: p.id,
+              kind: p.kind,
+              media_url: p.media_url,
+              caption: p.caption,
+              multi: multi.has(p.id),
+            }))}
+          />
         )}
       </div>
     </main>

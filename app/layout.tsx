@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { ACCENT_COOKIE, DEFAULT_ACCENT, isAccent } from "@/lib/theme";
 import { getMySuspension } from "@/lib/suspension";
 import { SuspendedNotice } from "@/components/suspended-notice";
+import { TabBar } from "@/components/tab-bar";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -52,7 +53,10 @@ export default async function RootLayout({
               expiresAt={suspension.expiresAt}
             />
           ) : (
-            children
+            <>
+              {children}
+              <TabBar />
+            </>
           )}
         </ThemeProvider>
       </body>

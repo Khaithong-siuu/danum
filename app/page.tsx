@@ -6,7 +6,6 @@ import { MessagesLink } from "@/components/messages-link";
 import { NotificationsLink } from "@/components/notifications-link";
 import { UserMenuLink } from "@/components/user-menu-link";
 import { IconLink } from "@/components/icon-link";
-import { TabBar } from "@/components/tab-bar";
 import { FeedList } from "@/components/feed-list";
 import { loadFeed } from "@/lib/feed";
 import {
@@ -186,7 +185,6 @@ export default function Home({
         <HomeBody searchParams={searchParams} />
       </Suspense>
 
-      <TabBar />
     </main>
   );
 }

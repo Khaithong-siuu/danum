@@ -3,34 +3,49 @@ import Image from "next/image";
 import Link from "next/link";
 import { EmojiText } from "@/components/emoji-text";
 import { formatCount } from "@/lib/reels";
+import type { StoryRing } from "@/lib/story-ring";
 
 type Stat = { label: string; value: number; href?: string };
 
 function StatCell({ stat }: { stat: Stat }) {
   const inner = (
     <>
-      <p className="text-lg font-bold tabular-nums leading-tight">
+      <span className="block text-[19px] font-bold tabular-nums leading-tight">
         {formatCount(stat.value)}
-      </p>
-      <p className="text-xs text-foreground/50">{stat.label}</p>
+      </span>
+      <span className="block text-[13px] text-foreground/55">{stat.label}</span>
     </>
   );
 
   return stat.href ? (
-    <Link
-      href={stat.href}
-      className="block rounded-xl transition active:bg-foreground/[0.06]"
-    >
+    <Link href={stat.href} className="block text-center transition active:opacity-60">
       {inner}
     </Link>
   ) : (
-    <div>{inner}</div>
+    <div className="text-center">{inner}</div>
+  );
+}
+
+function AvatarImage({ url, username }: { url: string | null; username: string }) {
+  return url ? (
+    <Image
+      src={url}
+      alt={`${username} avatar`}
+      width={96}
+      height={96}
+      priority
+      className="h-[88px] w-[88px] rounded-full object-cover"
+    />
+  ) : (
+    <div className="h-[88px] w-[88px] rounded-full bg-foreground/10" />
   );
 }
 
 /**
- * Header card shared by your own profile and public profiles: cover,
- * avatar with a gradient ring, name, bio, stats and action buttons.
+ * Profile header shared by your own profile and public profiles.
+ * Instagram-style layout (avatar left, stats right, bio below, buttons
+ * under that) on a glass card. The ring around the avatar only exists
+ * when the person has an active story.
  */
 export function ProfileHero({
   username,
@@ -41,6 +56,7 @@ export function ProfileHero({
   coverUrl,
   coverStyle,
   stats,
+  storyRing = "none",
   titleAs = "h1",
   children,
 }: {
@@ -52,87 +68,104 @@ export function ProfileHero({
   coverUrl: string | null;
   coverStyle?: CSSProperties;
   stats: Stat[];
+  storyRing?: StoryRing;
   titleAs?: "h1" | "h2";
   children?: ReactNode;
 }) {
   const Title = titleAs;
+  const hasStory = storyRing !== "none";
+
+  const avatar = hasStory ? (
+    <Link
+      href={`/stories/${encodeURIComponent(username)}`}
+      aria-label={`Watch ${username}'s story`}
+      className={`block rounded-full p-[3px] transition active:scale-95 ${
+        storyRing === "unseen"
+          ? "gradient-border-story shadow-lg shadow-pink-500/20"
+          : "bg-foreground/25"
+      }`}
+    >
+      <span className="block rounded-full bg-card p-[3px]">
+        <AvatarImage url={avatarUrl} username={username} />
+      </span>
+    </Link>
+  ) : (
+    <div className="rounded-full p-[3px]">
+      <AvatarImage url={avatarUrl} username={username} />
+    </div>
+  );
 
   return (
-    <section className="glass-card overflow-hidden rounded-[32px]">
-      {/* Cover: the picture they chose, or a soft color wash. It always
-          melts into the card so nothing ends in a hard edge. */}
-      <div className="relative h-40 overflow-hidden">
+    <section className="glass-card relative overflow-hidden rounded-[28px]">
+      {/* Ambient backdrop: their theme picture, or a soft brand glow.
+          Fades out downwards, so the card never ends in a hard edge. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-48"
+        style={{
+          WebkitMaskImage: "linear-gradient(to bottom, #000 0%, transparent 100%)",
+          maskImage: "linear-gradient(to bottom, #000 0%, transparent 100%)",
+        }}
+      >
         {coverUrl ? (
-          <Image
-            src={coverUrl}
-            alt=""
-            fill
-            priority
-            className="object-cover"
-            style={coverStyle}
-            sizes="(max-width: 640px) 100vw, 576px"
-          />
+          <>
+            <Image
+              src={coverUrl}
+              alt=""
+              fill
+              className="object-cover"
+              style={coverStyle}
+              sizes="(max-width: 640px) 100vw, 576px"
+            />
+            <div className="absolute inset-0 bg-card/55" />
+          </>
         ) : (
           <div
             className="absolute inset-0"
             style={{
               backgroundImage:
-                "radial-gradient(110% 120% at 15% 0%, hsl(var(--brand) / 0.55), transparent 60%), radial-gradient(90% 100% at 95% 10%, hsl(285 85% 62% / 0.4), transparent 55%)",
+                "radial-gradient(70% 90% at 12% 0%, hsl(var(--brand) / 0.28), transparent 70%), radial-gradient(60% 80% at 100% 0%, hsl(285 85% 62% / 0.18), transparent 70%)",
             }}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/30 to-card" />
       </div>
 
-      {/* relative + z-10 keeps the avatar above the cover */}
-      <div className="relative z-10 -mt-14 px-5 pb-5 text-center">
-        <div className="mx-auto w-fit rounded-full bg-gradient-to-tr from-brand to-fuchsia-500 p-[3px] shadow-lg shadow-brand/25">
-          <div className="rounded-full bg-card p-[3px]">
-            {avatarUrl ? (
-              <Image
-                src={avatarUrl}
-                alt={`${username} avatar`}
-                width={96}
-                height={96}
-                className="h-24 w-24 rounded-full object-cover"
-              />
-            ) : (
-              <div className="h-24 w-24 rounded-full bg-foreground/10" />
+      <div className="relative px-5 pb-5 pt-5">
+        <Title className="mb-4 truncate text-[17px] font-semibold tracking-tight">
+          {username}
+        </Title>
+
+        <div className="flex items-center gap-5">
+          <div className="shrink-0">{avatar}</div>
+          <div className="grid flex-1 grid-cols-3 gap-1">
+            {stats.map((s) => (
+              <StatCell key={s.label} stat={s} />
+            ))}
+          </div>
+        </div>
+
+        {(fullName || bio || website) && (
+          <div className="mt-4 text-[14px] leading-snug">
+            {fullName && <p className="font-semibold">{fullName}</p>}
+            {bio && (
+              <p className="mt-0.5 whitespace-pre-wrap text-foreground/85">
+                <EmojiText text={bio} />
+              </p>
+            )}
+            {website && (
+              <a
+                href={website}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="mt-0.5 block truncate font-medium text-brand hover:underline"
+              >
+                {website.replace(/^https?:\/\//, "")}
+              </a>
             )}
           </div>
-        </div>
-
-        <Title className="mt-3 text-2xl font-bold tracking-tight">{username}</Title>
-        {fullName && <p className="text-sm text-foreground/60">{fullName}</p>}
-
-        {bio && (
-          <p className="mx-auto mt-2 max-w-xs whitespace-pre-wrap text-sm leading-snug text-foreground/80">
-            <EmojiText text={bio} />
-          </p>
         )}
 
-        {website && (
-          <a
-            href={website}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            className="mx-auto mt-1 block max-w-xs truncate text-sm font-medium text-brand hover:underline"
-          >
-            {website.replace(/^https?:\/\//, "")}
-          </a>
-        )}
-
-        <div className="mt-5 grid grid-cols-3 divide-x divide-foreground/[0.08] rounded-2xl bg-foreground/[0.04] py-2.5">
-          {stats.map((s) => (
-            <StatCell key={s.label} stat={s} />
-          ))}
-        </div>
-
-        {children && (
-          <div className="mt-4 flex items-center justify-center gap-2">
-            {children}
-          </div>
-        )}
+        {children && <div className="mt-4 flex items-center gap-2">{children}</div>}
       </div>
     </section>
   );

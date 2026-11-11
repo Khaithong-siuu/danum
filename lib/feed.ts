@@ -15,11 +15,12 @@ export type FeedData = {
 /**
  * Loads posts in the shape the feed needs.
  * - { postId } loads a single post
+ * - { authorId } loads one person's posts, newest first (profile viewer)
  * - { followingOnly } loads posts by people you follow, plus your own
  * Returns null when nobody is signed in.
  */
 export async function loadFeed(
-  filter: { postId?: number; followingOnly?: boolean } = {}
+  filter: { postId?: number; followingOnly?: boolean; authorId?: string } = {}
 ): Promise<FeedData | null> {
   const supabase = await createClient();
 
@@ -33,6 +34,11 @@ export async function loadFeed(
 
   if (typeof filter.postId === "number") {
     query = query.eq("id", filter.postId);
+  } else if (filter.authorId) {
+    query = query
+      .eq("user_id", filter.authorId)
+      .order("created_at", { ascending: false })
+      .limit(60);
   } else {
     if (filter.followingOnly) {
       const { data: follows } = await supabase
